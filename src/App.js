@@ -1,23 +1,21 @@
-import logo from './logo.svg';
+import Nav from './components/Nav';
+import PrivateRoute from './components/PrivateRoute';
+import SignIn from './components/SignIn';
 import './App.css';
+import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
+import { UserProvider } from './lib/UserContext';
 
 function App() {
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Router>
+      <Redirect to='/home/profile'/>
+        <UserProvider >
+          <PrivateRoute path='/home' component={Nav} />
+          <Route path="/login" component={SignIn} />
+        </UserProvider>
+      </Router>
     </div>
   );
 }
