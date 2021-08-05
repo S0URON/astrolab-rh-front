@@ -17,7 +17,7 @@ export const UserProvider = (props) => {
             }
         }
         getProfile();
-    },[])
+    },[history])
 
     const fetchProfile = async (token) =>{
         const res = await fetch("http://localhost:5050/api/employee/me", {

@@ -1,7 +1,8 @@
-import {Capitalize} from '../lib/mylib'
+import { useState } from 'react';
+import { Capitalize } from '../lib/mylib'
 import ProfileForm from './FormExample';
 import EditRoundedIcon from '@material-ui/icons/EditRounded';
-import {Box,Typography, makeStyles, Accordion, AccordionSummary, AccordionActions, AccordionDetails, Divider, Button } from '@material-ui/core'
+import { Paper, Box, Typography, makeStyles, Divider, Button, Dialog, DialogActions, DialogTitle, DialogContent, IconButton } from '@material-ui/core'
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -42,46 +43,78 @@ const useStyles = makeStyles((theme) => ({
         },
     },
     pic: {
-        flexBasis: '7%',
+        flexBasis: '9%',
         backgroundImage: `url(${'https://media.istockphoto.com/vectors/default-gray-placeholder-man-vector-id871752462?b=1&k=6&m=871752462&s=612x612&w=0&h=su9GconcV7Pr_uuQm1GDnPEFoqgGz0dliMHMfmJf_ro='})`,
         backgroundRepeat: "no-repeat",
         backgroundPosition: "center",
         backgroundSize: "cover",
         borderRadius: "50%"
+    },
+    paper: {
+        padding: theme.spacing(2),
+        display: "flex",
+        justifyContent: "space-between"
+
+    },
+    text: {
+        margin: 'auto 0'
     }
 }));
 
-const EmployeeAcc = ({firstName, lastName, email, phone_primary, phone_secondary, adress,id, hiring_date,index, update}) => {
+const EmployeeAcc = ({ employee }) => {
     const classes = useStyles();
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [updatedEmployee, setUpdatedEmployee] = useState({})
+    const handleCloseDialog = () => {
+        setDialogOpen(false);
+    }
+    const handleOpenDialog = () => {
+        setDialogOpen(true);
+    }
+    const patchUser = async () =>{
+        const res = await fetch(`http://localhost:5050/api/employee`,{
+            method : "PATCH",
+            mode : 'cors',
+            headers :new Headers({
+                "Authorization": 'Bearer '+localStorage.getItem('token'),
+                'Content-Type': 'application/json'
+            }),
+            body : JSON.stringify({...updatedEmployee, uid : employee._id})
+        })
+        const data = await res.json()
+        console.log(data)
+    }
     return (
-        <Accordion>
-            <AccordionSummary
-                expandIcon={<EditRoundedIcon />}
-                aria-controls="panel1c-content"
-                id="panel1c-header"
-            >   <div className={classes.pic}>
-
+        <div>
+            <Paper className={classes.paper} variant="outlined">
+                <div className={classes.pic}>
                 </div>
-                <Box p={2}>
-                </Box>
-                <div className={classes.column}>
-                    <Typography className={classes.heading}>{Capitalize(firstName) + " " + Capitalize(lastName)}</Typography>
-                </div>
-                <div className={classes.column}>
-                    <Typography className={classes.heading}>{hiring_date}</Typography>
-                </div>
-            </AccordionSummary>
-            <AccordionDetails className={classes.details}>
-                <ProfileForm firstName={firstName} lastName={lastName} email={email} id={id} phone_primary={phone_primary} phone_secondary={phone_secondary} adress={adress} hiring_date={hiring_date} index={index} update={update} />
-            </AccordionDetails>
-            <Divider />
-            <AccordionActions>
-                <Button size="small">Cancel</Button>
-                <Button size="small" color="primary">
-                    Save
-                </Button>
-            </AccordionActions>
-        </Accordion>
+                <Typography className={classes.text}>
+                    {employee.firstName + " " + employee.lastName}
+                </Typography>
+                <Typography className={classes.text}>
+                    {employee.hiring_date}
+                </Typography>
+                <IconButton onClick={handleOpenDialog}>
+                    <EditRoundedIcon />
+                </IconButton>
+            </Paper>
+            <Dialog open={dialogOpen} onClose={handleCloseDialog} aria-labelledby="form-dialog-title" width="50%">
+                <DialogTitle id="form-dialog-title">Add Employee</DialogTitle>
+                <DialogContent>
+                    <ProfileForm employee={employee} profile={updatedEmployee} update={setUpdatedEmployee} />
+                    <Divider />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseDialog} color="primary">
+                        Cancel
+                    </Button>
+                    <Button color="primary" onClick={patchUser}>
+                        save
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        </div >
     )
 }
 

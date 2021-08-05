@@ -1,49 +1,20 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Box, Grid, Dialog, DialogActions, DialogTitle, DialogContent, TextField,makeStyles , Button } from '@material-ui/core'
 import EmployeeAcc from './EmployeeAcc';
 
 
-const employeeList = [
+const dummy = [
     {
-        firstName: "medamin",
-        lastName: "el mokni",
-        email: "example@gmail.com",
-        phone_primary: "52045911",
-        phone_secondary: "73303405",
-        adress: '',
-        hiring_date: "2001-12-14",
-        id : 1,
+        firstName: "aazdaz",
+        lastName: "zdadad",
+        email: "dadada",
+        phone_primary: "adadaz",
+        phone_secondary: "dazdada",
+        adress: 'adada',
+        hiring_date: "azdazdazd",
+        _id : 0,
     },
-    {
-        firstName: "med",
-        lastName: "ALi",
-        email: "example@gmail.com",
-        phone_primary: "52045911",
-        phone_secondary: "73303405",
-        adress: '',
-        hiring_date: "2011-01-15",
-        id : 2,
-    },
-    {
-        firstName: "wajih",
-        lastName: "el abed",
-        email: "example@gmail.com",
-        phone_primary: "52045911",
-        phone_secondary: "73303405",
-        adress: '',
-        hiring_date: "2012-04-06",
-        id : 3,
-    },
-    {
-        firstName: "ahmed",
-        lastName: "khorda",
-        email: "example@gmail.com",
-        phone_primary: "52045911",
-        phone_secondary: "73303405",
-        adress: '',
-        hiring_date: "2015-01-15",
-        id : 4,
-}];
+];
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -93,37 +64,8 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
-const updateAttribute = (att, e) => {
-    switch (e.target.name) {
-        case "firstName":
-            att.firstName = e.target.value;
-            break;
-        case "lastName":
-            att.lastName = e.target.value;
-            break;
-        case "email":
-            att.email = e.target.value;
-            break;
-        case "phone_primary":
-            att.phone_primary = e.target.value;
-            break;
-        case "phone_secondary":
-            att.phone_secondary = e.target.value;
-            break;
-        case "adress":
-            att.adress = e.target.value;
-            break;
-        case "hiring_date":
-            att.hiring_date = e.target.value;
-            break;
-        default:
-            break;
-    }
-
-}
-
 const EditEmployee = () => {
-    const [employees, setEmployees] = useState(employeeList);
+    const [employees, setEmployees] = useState(dummy);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [newEmployee, setNewEmployee] = useState({
         firstName: "",
@@ -132,18 +74,49 @@ const EditEmployee = () => {
         phone_primary: "",
         phone_secondary: "",
         adress: '',
-        hiring_date: ""
+        hiring_date: "",
+        password : ""
     });
 
-   /* const fetchEmployees = async (token) => {
+    useEffect(()=>{
+        const getEmployees = async () => {
+            const employeeList = await fetchEmployees(localStorage.getItem("token"));
+            setEmployees(employeeList)
+        }
+        getEmployees();
+        
+    },[])
+    console.log(employees)
+    const fetchEmployees = async (token) => {
+        const res = await fetch("http://localhost:5050/api/employee",{
+            method: 'GET',
+            mode : "cors",
+            headers: new Headers({  
+                "Authorization": 'Bearer '+token,
+            }),
+        })
+        const data = await res.json()
+        return data
+    }
 
-    }*/
+    const addEmployee = async () => {
+        const res = await fetch("http://localhost:5050/api/addemployee", {
+            method : "POST",
+            mode : "cors",
+            headers : {
+                'Content-Type': 'application/json'
+            },
+            body : JSON.stringify(newEmployee)
+        })
+        const data = await res.json()
+        console.log(data)
+    }
 
-    const UpdateEmployees = (e, index) => {
+    /*const UpdateEmployees = (e, index) => {
         let newData = [...employees];
         updateAttribute(newData[index], e);
         setEmployees(newData);
-    }
+    }*/
     const handleCloseDialog = () => {
         setDialogOpen(false);
     }
@@ -152,6 +125,7 @@ const EditEmployee = () => {
     }
     const handleAddEmployee = () => {
         setEmployees([...employees, newEmployee]);
+        addEmployee();
         handleCloseDialog();
     }
 
@@ -161,8 +135,8 @@ const EditEmployee = () => {
             <Grid container direction="column" spacing={3}>
                 {
                     employees.map((employee, index) => (
-                        <Grid item xs margin="auto" key={index}>
-                            <EmployeeAcc id={employee.id} firstName={employee.firstName} lastName={employee.lastName} email={employee.email} phone_primary={employee.phone_primary} phone_secondary={employee.phone_secondary} adress={employee.adress} hiring_date={employee.hiring_date} index={index} update={UpdateEmployees}/>
+                        <Grid item xs margin="auto" key={employee._id}>
+                            <EmployeeAcc employee={employee}/>
                         </Grid>
                     ))
                     }
@@ -222,6 +196,13 @@ const EditEmployee = () => {
                                 label="Date Hired"
                                 fullWidth
                                 onChange={(e) => {setNewEmployee({...newEmployee, hiring_date : e.target.value})}}
+                            />
+                            <TextField
+                                margin="dense"
+                                name="password"
+                                label="password"
+                                fullWidth
+                                onChange={(e) => {setNewEmployee({...newEmployee, password : e.target.value})}}
                             />
                         </DialogContent>
                         <DialogActions>

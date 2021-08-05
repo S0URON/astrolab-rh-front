@@ -1,6 +1,6 @@
 import { alpha, makeStyles } from '@material-ui/core/styles';
 import {Drawer, ListItem, List, Divider, ListItemText, IconButton, Typography, Toolbar, AppBar, Badge, ListItemIcon} from '@material-ui/core';
-import {BrowserRouter as Router, Link as RouterLink, useHistory, Redirect} from 'react-router-dom';
+import {BrowserRouter as Router, Link as RouterLink, useHistory} from 'react-router-dom';
 import MenuIcon from '@material-ui/icons/Menu';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import AddCircleRoundedIcon from '@material-ui/icons/AddCircleRounded';
@@ -97,6 +97,7 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     alignItems: 'center',
     backgroundColor : "#3f51b5",
+    color : "white",
     padding: theme.spacing(0, 1),
     // necessary for content to be below app bar
     ...theme.mixins.toolbar,
@@ -122,13 +123,14 @@ export default function Nav() {
         'Authorization': 'Bearer ' + localStorage.getItem("token")
       },
     });
+    console.log(res.status)
     localStorage.removeItem("token")
     history.push("/login")
   }
   return (
     <div className={classes.grow}>
         <Router>
-          <AppBar position="static" className={classes.appbar}>
+          <AppBar position="sticky" className={classes.appbar}>
             <Toolbar>
               <div className={classes.grow} />
               <div className={classes.sectionDesktop}>
@@ -145,7 +147,7 @@ export default function Nav() {
               paper: classes.drawerPaper,
             }}>
             <div className={classes.drawerHeader}>
-            <IconButton><MenuIcon/></IconButton>
+            <IconButton color="inherit"><MenuIcon /></IconButton>
               <Typography className={classes.title} variant="h6" noWrap>
                 Menu
               </Typography>

@@ -1,4 +1,4 @@
-import {useState, useContext} from 'react';
+import { useState, useContext } from 'react';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -11,17 +11,14 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-import {Link, useHistory} from 'react-router-dom';
-import {UserContext} from '../lib/UserContext'
+import { Link, useHistory } from 'react-router-dom';
+import { UserContext } from '../lib/UserContext'
 
 
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © '}
-      <Link color="inherit" to="https://material-ui.com/">
-        Your Website
-      </Link>{' '}
+      {'Copyright © astrolab '}
       {new Date().getFullYear()}
       {'.'}
     </Typography>
@@ -49,28 +46,28 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function SignIn() {
-  const {setProfile} = useContext(UserContext)
+  const { setProfile } = useContext(UserContext)
   const history = useHistory();
   const classes = useStyles();
-  const [creds, setCreds] = useState({email : "", password : ""})
+  const [creds, setCreds] = useState({ email: "", password: "" })
 
   const login = async (e) => {
     e.preventDefault()
     const url = 'http://localhost:5050/api/login'
     const response = await fetch(url, {
-      method: 'POST', 
-      cache: 'no-cache', 
-      credentials: 'same-origin', 
+      method: 'POST',
+      cache: 'no-cache',
+      credentials: 'same-origin',
       headers: {
         'Content-Type': 'application/json'
       },
-      redirect: 'follow', 
-      referrerPolicy: 'no-referrer', 
-      body: JSON.stringify(creds) 
+      redirect: 'follow',
+      referrerPolicy: 'no-referrer',
+      body: JSON.stringify(creds)
     });
-    
+
     const data = await response.json()
-    if(data.user){
+    if (data.user) {
       setProfile(data.user);
       localStorage.setItem('token', data.token);
       history.push('/home');
@@ -98,7 +95,7 @@ export default function SignIn() {
             label="Email Address"
             name="email"
             autoComplete="email"
-            onChange={(e) => setCreds({...creds, email : e.target.value})}
+            onChange={(e) => setCreds({ ...creds, email: e.target.value })}
             autoFocus
           />
           <TextField
@@ -110,7 +107,7 @@ export default function SignIn() {
             label="Password"
             type="password"
             id="password"
-            onChange={(e) => setCreds({...creds, password : e.target.value})}
+            onChange={(e) => setCreds({ ...creds, password: e.target.value })}
             autoComplete="current-password"
           />
           <FormControlLabel

@@ -1,8 +1,7 @@
 import { Box, Grid, Paper, Typography, makeStyles, Divider, Button, Dialog, DialogActions, DialogTitle, DialogContent, TextField } from '@material-ui/core'
 import { Capitalize } from '../lib/mylib';
-import { useState , useEffect, useContext} from 'react';
-import { useHistory } from "react-router-dom";
-import {UserContext} from '../lib/UserContext'
+import { useState , useContext} from 'react';
+import { UserContext } from '../lib/UserContext'
 
 
 const useStyles = makeStyles((theme) => ({
@@ -31,35 +30,11 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Profile = () => {
-    const {profile, setProfile} = useContext(UserContext)
-    /*const history = useHistory()
-    useEffect(() => {
-        const getProfile = async () => {
-            if (localStorage.getItem("token")) {
-                const profileFromServer = await fetchProfile(localStorage.getItem("token"), localStorage.getItem("_id"))
-                setProfile(()=>({...profileFromServer}))
-            } else {
-                history.push("/login")
-            }
-        }
-        getProfile();
-    },[])
+    const {profile} = useContext(UserContext)
 
-    const fetchProfile = async (token, _id) =>{
-        const res = await fetch("http://localhost:5050/api/employee/me", {
-            method: 'GET',
-            mode : "cors",
-            headers: new Headers({  
-                "Authorization": 'Bearer '+token,
-                "_id" : _id
-            }),
-        })
-        const data = await res.json()
-        return data
-    }
-*/
     const classes = useStyles();
     const [dialogOpen, setDialogOpen] = useState(false);
+
     const handleCloseDialog = () => {
         setDialogOpen(false);
     }
