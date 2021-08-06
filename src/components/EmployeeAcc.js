@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Capitalize } from '../lib/mylib'
 import ProfileForm from './FormExample';
 import EditRoundedIcon from '@material-ui/icons/EditRounded';
-import { Paper, Box, Typography, makeStyles, Divider, Button, Dialog, DialogActions, DialogTitle, DialogContent, IconButton } from '@material-ui/core'
+import { Paper, Typography, makeStyles, Divider, Button, Dialog, DialogActions, DialogTitle, DialogContent, IconButton } from '@material-ui/core'
+import { useHistory } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -62,6 +62,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const EmployeeAcc = ({ employee }) => {
+    const history = useHistory()
     const classes = useStyles();
     const [dialogOpen, setDialogOpen] = useState(false);
     const [updatedEmployee, setUpdatedEmployee] = useState({})
@@ -81,8 +82,9 @@ const EmployeeAcc = ({ employee }) => {
             }),
             body : JSON.stringify({...updatedEmployee, uid : employee._id})
         })
+        // eslint-disable-next-line
         const data = await res.json()
-        console.log(data)
+        history.go(0)
     }
     return (
         <div>

@@ -1,7 +1,10 @@
-import { Box, Grid, Paper, Typography, makeStyles, Divider, Button, Dialog, DialogActions, DialogTitle, DialogContent, TextField } from '@material-ui/core'
+import { Box, Grid, Paper, Typography, makeStyles, Divider, Button, Dialog, DialogActions, DialogTitle, DialogContent, TextField, IconButton } from '@material-ui/core'
 import { Capitalize } from '../lib/mylib';
-import { useState , useContext} from 'react';
-import { UserContext } from '../lib/UserContext'
+import { useState, useContext } from 'react';
+import EditRoundedIcon from '@material-ui/icons/EditRounded';
+import { UserContext } from '../lib/UserContext';
+import ProfileForm from './FormExample';
+import { useHistory } from 'react-router-dom'
 
 
 const useStyles = makeStyles((theme) => ({
@@ -22,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
     },
     box: {
         margin: "auto",
-        padding: '5%'
+        padding: '5%',
     },
     typography: {
         textAlign: "center",
@@ -30,19 +33,51 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Profile = () => {
-    const {profile} = useContext(UserContext)
-
+    const history = useHistory()
+    const { profile } = useContext(UserContext)
+    const [updatedEmployee, setUpdatedEmployee] = useState({})
+    const [pass, setPass] = useState({})
     const classes = useStyles();
+    const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
     const [dialogOpen, setDialogOpen] = useState(false);
 
-    const handleCloseDialog = () => {
-        setDialogOpen(false);
+
+    const handlePwdClose = () => {
+        setPasswordDialogOpen(false);
     }
-    const handleOpenDialog = () => {
-        setDialogOpen(true);
+    const handlePwdOpen = () => {
+        setPasswordDialogOpen(true);
     }
-    const handlePwdChange = () => {
-        handleCloseDialog();
+    const handlePwdChange = async () => {
+        const res = await fetch(`http://localhost:5050/api/employee/cp`,{
+            method : "PATCH",
+            mode : 'cors',
+            headers :new Headers({
+                "Authorization": 'Bearer '+localStorage.getItem('token'),
+                'Content-Type': 'application/json'
+            }),
+            body : JSON.stringify(pass)
+        })
+        const data = await res.status
+        if(data !== 200)
+            console.log(data)
+        else
+            history.go(0)
+    }
+    const handleProfileChange = async () => {
+        const res = await fetch(`http://localhost:5050/api/employee/me`,{
+            method : "PATCH",
+            mode : 'cors',
+            headers :new Headers({
+                "Authorization": 'Bearer '+localStorage.getItem('token'),
+                'Content-Type': 'application/json'
+            }),
+            body : JSON.stringify({...updatedEmployee})
+        })
+       
+        const data = await res.json()
+        console.log(data)
+        history.go(0)
     }
     return (
         <Box margin="2% auto" boxShadow=" 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23)" borderRadius="10px" display="flex" flexDirection="column" justifyContent="center" alignItems="center" width="40%">
@@ -52,6 +87,25 @@ const Profile = () => {
             <Box className={classes.box}>
                 <Typography className={classes.typography} variant="h5">
                     {profile ? Capitalize(profile.firstName) + " " + Capitalize(profile.lastName) : ""}
+                    { profile ? (profile.role !== "admin" ? 
+                    <IconButton onClick={() => setDialogOpen(true)}>
+                        <EditRoundedIcon />
+                    </IconButton> : <></> ) : <></>}
+                    <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} aria-labelledby="form-dialog-title" width="50%">
+                        <DialogTitle id="form-dialog-title">Add Employee</DialogTitle>
+                        <DialogContent>
+                            <ProfileForm employee={profile} profile={updatedEmployee} update={setUpdatedEmployee} />
+                            <Divider />
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={() => setDialogOpen(false)} color="primary">
+                                Cancel
+                            </Button>
+                            <Button color="primary" onClick={handleProfileChange}>
+                                save
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
                 </Typography>
             </Box>
             <Divider variant="middle" width="80%" />
@@ -69,10 +123,10 @@ const Profile = () => {
                     </Grid>
                     <Grid item xs={12}>
                         <Typography className={classes.typography}>
-                            <Button onClick={handleOpenDialog}>
+                            <Button onClick={handlePwdOpen}>
                                 Change Password
                             </Button>
-                            <Dialog open={dialogOpen} onClose={handleCloseDialog} aria-labelledby="form-dialog-title" width="50%">
+                            <Dialog open={passwordDialogOpen} onClose={handlePwdClose} aria-labelledby="form-dialog-title" width="50%">
                                 <DialogTitle id="form-dialog-title">Change Password</DialogTitle>
                                 <DialogContent>
                                     <TextField
@@ -80,22 +134,25 @@ const Profile = () => {
                                         name="oldPassword"
                                         label="Old Password"
                                         fullWidth
+                                        onChange={(e) => setPass({...pass, oldPassword : e.target.value})}
                                     />
                                     <TextField
                                         margin="dense"
                                         name="newPassword"
                                         label="new Password"
+                                        onChange={(e) => setPass({...pass, newPassword : e.target.value})}
                                         fullWidth
                                     />
                                     <TextField
                                         margin="dense"
                                         name="comfirmNewPassword"
                                         label="comfirm Password"
+                                        onChange={(e) => setPass({...pass, comfirmNewPassword : e.target.value})}
                                         fullWidth
                                     />
                                 </DialogContent>
                                 <DialogActions>
-                                    <Button onClick={handleCloseDialog} color="primary">
+                                    <Button onClick={handlePwdClose} color="primary">
                                         Cancel
                                     </Button>
                                     <Button color="primary" onClick={handlePwdChange}>

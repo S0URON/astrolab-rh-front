@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Box, Grid, Dialog, DialogActions, DialogTitle, DialogContent, TextField,makeStyles , Button } from '@material-ui/core'
+import { Box, Grid, Dialog, DialogActions, DialogTitle, DialogContent, TextField, makeStyles, Button } from '@material-ui/core'
 import EmployeeAcc from './EmployeeAcc';
 
 
@@ -12,7 +12,7 @@ const dummy = [
         phone_secondary: "dazdada",
         adress: 'adada',
         hiring_date: "azdazdazd",
-        _id : 0,
+        _id: 0,
     },
 ];
 
@@ -75,24 +75,24 @@ const EditEmployee = () => {
         phone_secondary: "",
         adress: '',
         hiring_date: "",
-        password : ""
+        password: ""
     });
 
-    useEffect(()=>{
+    useEffect(() => {
         const getEmployees = async () => {
             const employeeList = await fetchEmployees(localStorage.getItem("token"));
             setEmployees(employeeList)
         }
         getEmployees();
-        
-    },[])
+
+    }, [])
     console.log(employees)
     const fetchEmployees = async (token) => {
-        const res = await fetch("http://localhost:5050/api/employee",{
+        const res = await fetch("http://localhost:5050/api/employee", {
             method: 'GET',
-            mode : "cors",
-            headers: new Headers({  
-                "Authorization": 'Bearer '+token,
+            mode: "cors",
+            headers: new Headers({
+                "Authorization": 'Bearer ' + token,
             }),
         })
         const data = await res.json()
@@ -101,22 +101,17 @@ const EditEmployee = () => {
 
     const addEmployee = async () => {
         const res = await fetch("http://localhost:5050/api/addemployee", {
-            method : "POST",
-            mode : "cors",
-            headers : {
+            method: "POST",
+            mode: "cors",
+            headers: {
                 'Content-Type': 'application/json'
             },
-            body : JSON.stringify(newEmployee)
+            body: JSON.stringify(newEmployee)
         })
         const data = await res.json()
         console.log(data)
     }
 
-    /*const UpdateEmployees = (e, index) => {
-        let newData = [...employees];
-        updateAttribute(newData[index], e);
-        setEmployees(newData);
-    }*/
     const handleCloseDialog = () => {
         setDialogOpen(false);
     }
@@ -136,10 +131,10 @@ const EditEmployee = () => {
                 {
                     employees.map((employee, index) => (
                         <Grid item xs margin="auto" key={employee._id}>
-                            <EmployeeAcc employee={employee}/>
+                            <EmployeeAcc employee={employee} />
                         </Grid>
                     ))
-                    }
+                }
                 <Grid item xs={12}>
                     <Button onClick={handleOpenDialog}>
                         add employee
@@ -152,14 +147,14 @@ const EditEmployee = () => {
                                 name="firstName"
                                 label="FirstName"
                                 fullWidth
-                                onChange={(e) => {setNewEmployee({...newEmployee, firstName : e.target.value})}}
+                                onChange={(e) => { setNewEmployee({ ...newEmployee, firstName: e.target.value }) }}
                             />
                             <TextField
                                 margin="dense"
                                 name="lastName"
                                 label="LastName"
                                 fullWidth
-                                onChange={(e) => {setNewEmployee({...newEmployee, lastName : e.target.value})}}
+                                onChange={(e) => { setNewEmployee({ ...newEmployee, lastName: e.target.value }) }}
                             />
                             <TextField
                                 margin="dense"
@@ -167,42 +162,43 @@ const EditEmployee = () => {
                                 label="Email Address"
                                 type="email"
                                 fullWidth
-                                onChange={(e) => {setNewEmployee({...newEmployee, email : e.target.value})}}
+                                onChange={(e) => { setNewEmployee({ ...newEmployee, email: e.target.value }) }}
                             />
                             <TextField
                                 margin="dense"
                                 name="phone_primary"
                                 label="Primary Phone Number"
                                 fullWidth
-                                onChange={(e) => {setNewEmployee({...newEmployee, phone_primary : e.target.value})}}
+                                onChange={(e) => { setNewEmployee({ ...newEmployee, phone_primary: e.target.value }) }}
                             />
                             <TextField
                                 margin="dense"
                                 name="phone_secondary"
                                 label="Secondary Phone Number"
                                 fullWidth
-                                onChange={(e) => {setNewEmployee({...newEmployee, phone_secondary : e.target.value})}}
+                                onChange={(e) => { setNewEmployee({ ...newEmployee, phone_secondary: e.target.value }) }}
                             />
                             <TextField
                                 margin="dense"
                                 name="adress"
                                 label="adress"
                                 fullWidth
-                                onChange={(e) => {setNewEmployee({...newEmployee, adress : e.target.value})}}
+                                onChange={(e) => { setNewEmployee({ ...newEmployee, adress: e.target.value }) }}
                             />
                             <TextField
                                 margin="dense"
+                                type="date"
+                                id="hiring_date"
                                 name="hiring_date"
-                                label="Date Hired"
+                                onChange={(e) => { setNewEmployee({ ...newEmployee, hiring_date: e.target.value }) }}
                                 fullWidth
-                                onChange={(e) => {setNewEmployee({...newEmployee, hiring_date : e.target.value})}}
                             />
                             <TextField
                                 margin="dense"
                                 name="password"
                                 label="password"
                                 fullWidth
-                                onChange={(e) => {setNewEmployee({...newEmployee, password : e.target.value})}}
+                                onChange={(e) => { setNewEmployee({ ...newEmployee, password: e.target.value }) }}
                             />
                         </DialogContent>
                         <DialogActions>
