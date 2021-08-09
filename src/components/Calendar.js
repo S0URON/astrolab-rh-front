@@ -1,15 +1,27 @@
 import { Box, makeStyles } from "@material-ui/core"
-// eslint-disable-next-line
-import { format } from 'date-fns'
-import { enGB } from 'date-fns/locale'
-import { DateRangePickerCalendar, START_DATE } from 'react-nice-dates'
-import { useState } from "react"
+import { useState, useContext, useEffect } from "react"
+import { UserContext } from "../lib/UserContext"
+import { ViewState } from '@devexpress/dx-react-scheduler';
+import { format } from "date-fns";
+import {
+    Scheduler,
+    MonthView,
+    Toolbar,
+    DateNavigator,
+    Appointments,
+    Resources,
+    TodayButton,
+    AppointmentTooltip
+} from '@devexpress/dx-react-scheduler-material-ui';
+import { createDate } from "../lib/mylib";
+
 
 const useStyles = makeStyles((theme) => ({
     box: {
-        margin: "5% auto",
-        width: "400px",
-        height: "390px",
+        marginLeft : "240px",
+        position: "left",
+        width: window.innerWidth-240,
+        height: window.innerHeight-64,
         display: "flex",
         flexDirection: "column",
         border: "1px solid #fff",
@@ -18,31 +30,85 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
+
 const Calendar = () => {
+    const { profile } = useContext(UserContext)
     const classes = useStyles();
-    const [startDate, setStartDate] = useState()
-    const [endDate, setEndDate] = useState()
-    const [focus, setFocus] = useState(START_DATE)
-    const handleFocusChange = newFocus => {
-        setFocus(newFocus || START_DATE)
+    const [holidays, setHoliays] = useState([{
+        requestedHoliday: { from: "1970-01-01", to: "1970-01-01", label: "placeholder" },
+        owner: {
+            firstName: "placeholder"
+        }
+    }]);
+
+    const [currentDate, setCurrentDate] = useState("2015-02-01")
+
+    useEffect(() => {
+        const getHolidays = async () => {
+            const fetchedHolidays = await fetchHolidays()
+            if (fetchedHolidays)
+                setHoliays(fetchedHolidays)
+            else
+                alert('get holidays failed')
+        }
+        if(profile.role)
+            getHolidays()
+        const today = format(new Date(), 'yyyy-MM-dd')
+        setCurrentDate(today)
+    }, [])
+
+    const fetchHolidays = async () => {
+        const res = await fetch("http://localhost:5050/api/holidays", {
+            method: 'GET',
+            mode: "cors",
+            headers: new Headers({
+                "Authorization": 'Bearer ' + localStorage.getItem("token"),
+            }),
+        })
+        const data = await res.json()
+        if (res.status === 200)
+            return data
+        else
+            return null
     }
+
+    let schedulerData;
+    if (profile) {
+        if (profile.role !== "admin")
+            schedulerData = [{ title: profile ? (typeof (profile.holiday) === "object" ? profile.holiday.requestedHoliday.label : "") : "", startDate: createDate(profile ? (typeof (profile.holiday) === "object" ? profile.holiday.requestedHoliday.from : "") : ""), endDate: createDate(profile ? (typeof (profile.holiday) === "object" ? profile.holiday.requestedHoliday.to : "") : ""), id: profile._id }];
+        else
+            schedulerData = holidays.map((holiday) => (
+                { title: holiday ? holiday.requestedHoliday.label : "", startDate: createDate(holiday ? holiday.requestedHoliday.from : ""), endDate: createDate(holiday ? holiday.requestedHoliday.to : ""), id: holiday._id }
+            ))
+    }
+    const resource = [{
+        fieldName: 'id',
+        title: 'employee',
+        instances: holidays.map((holiday) => (
+            { id: holiday._id, text: holiday.owner ? holiday.owner.firstName + ' ' + holiday.owner.lastName : holiday.requestedHoliday.label }
+        ))
+    }]
+
     return (
-        <>
-            <p>Selected start date: {startDate ? format(startDate, 'yyyy-MM-dd', { locale: enGB }) : 'none'}.</p>
-            <p>Selected end date: {endDate ? format(endDate, 'yyyy-MM-dd', { locale: enGB }) : 'none'}.</p>
-            <p>Currently selecting: {focus}.</p>
-            <div className={classes.box}>
-                <DateRangePickerCalendar
-                    startDate={startDate}
-                    endDate={endDate}
-                    focus={focus}
-                    onStartDateChange={setStartDate}
-                    onEndDateChange={setEndDate}
-                    onFocusChange={handleFocusChange}
-                    locale={enGB}
+        <Box className={classes.box}>
+            <Scheduler
+                data={schedulerData}
+                height={window.innerHeight-64}
+            >
+                <ViewState
+                    currentDate={currentDate}
+                    onCurrentDateChange={setCurrentDate}
                 />
-            </div>
-        </>
+                <MonthView
+                />
+                <Toolbar />
+                <DateNavigator />
+                <TodayButton />
+                <Appointments />
+                <AppointmentTooltip />
+                <Resources data={resource} mainResourceName={"id"} />
+            </Scheduler>
+        </Box>
     )
 }
 

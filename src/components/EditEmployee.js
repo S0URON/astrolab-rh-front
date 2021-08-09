@@ -5,16 +5,16 @@ import EmployeeAcc from './EmployeeAcc';
 
 const dummy = [
     {
-        firstName: "aazdaz",
-        lastName: "zdadad",
-        email: "dadada",
-        phone_primary: "adadaz",
-        phone_secondary: "dazdada",
-        adress: 'adada',
-        hiring_date: "azdazdazd",
-        _id: 0,
+      firstName: "aazdaz",
+      lastName: "zdadad",
+      email: "dadada",
+      phone_primary: "adadaz",
+      phone_secondary: "dazdada",
+      adress: 'adada',
+      hiring_date: "azdazdazd",
+      _id: 0,
     },
-];
+  ];
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -65,8 +65,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const EditEmployee = () => {
-    const [employees, setEmployees] = useState(dummy);
     const [dialogOpen, setDialogOpen] = useState(false);
+    const [employees, setEmployees] = useState(dummy);
     const [newEmployee, setNewEmployee] = useState({
         firstName: "",
         lastName: "",
@@ -86,7 +86,6 @@ const EditEmployee = () => {
         getEmployees();
 
     }, [])
-    console.log(employees)
     const fetchEmployees = async (token) => {
         const res = await fetch("http://localhost:5050/api/employee", {
             method: 'GET',

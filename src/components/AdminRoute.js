@@ -8,7 +8,7 @@ const AdminRoute = ({component: Component, ...rest}) => {
     const {profile} = useContext(UserContext)
     return (
         <Route {...rest} render={props => (
-            IsAdmin(profile ? profile : {role : "other"}) ? <Component {...props} />
+            IsAdmin(profile ? profile : {role : "other"}) ? <Component {...rest} />
             : <Redirect to="/home" />
         )} />
     )

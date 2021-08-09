@@ -133,11 +133,13 @@ const Profile = () => {
                                         margin="dense"
                                         name="oldPassword"
                                         label="Old Password"
+                                        type="password"
                                         fullWidth
                                         onChange={(e) => setPass({...pass, oldPassword : e.target.value})}
                                     />
                                     <TextField
                                         margin="dense"
+                                        type="password"
                                         name="newPassword"
                                         label="new Password"
                                         onChange={(e) => setPass({...pass, newPassword : e.target.value})}
@@ -145,6 +147,7 @@ const Profile = () => {
                                     />
                                     <TextField
                                         margin="dense"
+                                        type="password"
                                         name="comfirmNewPassword"
                                         label="comfirm Password"
                                         onChange={(e) => setPass({...pass, comfirmNewPassword : e.target.value})}

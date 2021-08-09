@@ -19,6 +19,14 @@ export const IsAdmin = (profile) => {
         return false
 }
 
+export const createDate = (date) => {
+    if (date) {
+        const newDate = date.split('-')
+        newDate[1] = (parseInt(newDate[1]) - 1).toString()
+        return new Date(newDate[0], newDate[1], newDate[2], 10, 0)
+    } else
+        return
+}
 
 const exports = {Capitalize, loggedIn, IsAdmin}
 

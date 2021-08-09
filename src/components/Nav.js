@@ -1,6 +1,6 @@
 import { alpha, makeStyles } from '@material-ui/core/styles';
-import {Drawer, ListItem, List, Divider, ListItemText, IconButton, Typography, Toolbar, AppBar, Badge, ListItemIcon} from '@material-ui/core';
-import {BrowserRouter as Router, Link as RouterLink, useHistory} from 'react-router-dom';
+import { Drawer, ListItem, List, Divider, ListItemText, IconButton, Typography, Toolbar, AppBar, Badge, ListItemIcon } from '@material-ui/core';
+import { BrowserRouter as Router, Link as RouterLink, useHistory } from 'react-router-dom';
 import MenuIcon from '@material-ui/icons/Menu';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import AddCircleRoundedIcon from '@material-ui/icons/AddCircleRounded';
@@ -96,29 +96,31 @@ const useStyles = makeStyles((theme) => ({
   drawerHeader: {
     display: 'flex',
     alignItems: 'center',
-    backgroundColor : "#3f51b5",
-    color : "white",
+    backgroundColor: "#3f51b5",
+    color: "white",
     padding: theme.spacing(0, 1),
     // necessary for content to be below app bar
     ...theme.mixins.toolbar,
     justifyContent: 'flex-start',
   },
-  appbar : {
+  appbar: {
     width: `calc(100% - ${drawerWidth}px)`,
     marginLeft: drawerWidth,
   }
 }));
 
+
 export default function Nav() {
   const history = useHistory()
   const classes = useStyles();
-  const {profile} = useContext(UserContext)
-  const logout = async () =>{
+  const { profile } = useContext(UserContext)
+
+  const logout = async () => {
     const url = 'http://localhost:5050/api/logout'
     const res = await fetch(url, {
-      method: 'POST', 
-      cache: 'no-cache', 
-      credentials: 'same-origin', 
+      method: 'POST',
+      cache: 'no-cache',
+      credentials: 'same-origin',
       headers: {
         'Authorization': 'Bearer ' + localStorage.getItem("token")
       },
@@ -129,51 +131,51 @@ export default function Nav() {
   }
   return (
     <div className={classes.grow}>
-        <Router>
-          <AppBar position="sticky" className={classes.appbar}>
-            <Toolbar>
-              <div className={classes.grow} />
-              <div className={classes.sectionDesktop}>
-                <IconButton color="inherit" component={RouterLink} to='/home/profile'>
-                    <AccountCircle/>
-                </IconButton>
-                <IconButton color="inherit" onClick={logout}>
-                    <ExitToAppRoundedIcon/>
-                </IconButton>
-              </div>
-            </Toolbar>
-          </AppBar>
-          <Drawer className={classes.drawer} variant="persistent" anchor='left' open={true}  classes={{
-              paper: classes.drawerPaper,
-            }}>
-            <div className={classes.drawerHeader}>
-            <IconButton color="inherit"><MenuIcon /></IconButton>
-              <Typography className={classes.title} variant="h6" noWrap>
-                Menu
-              </Typography>
+      <Router>
+        <AppBar position="sticky" className={classes.appbar}>
+          <Toolbar>
+            <div className={classes.grow} />
+            <div className={classes.sectionDesktop}>
+              <IconButton color="inherit" component={RouterLink} to='/home/profile'>
+                <AccountCircle />
+              </IconButton>
+              <IconButton color="inherit" onClick={logout}>
+                <ExitToAppRoundedIcon />
+              </IconButton>
             </div>
-            <Divider />
-            <List>
-              {[{text : 'notifications',link : '/home/notifications',icon : (<Badge badgeContent={17} color="secondary" ><NotificationsRoundedIcon/></Badge>)},
-               {text : 'request a holiday',link : '/home/holidays',icon : (<QuestionAnswerRoundedIcon />)},
-               {text : 'Calendar',link : '/home/calendar',icon : (<EventAvailableRoundedIcon/>)}].map((el) => (
-                    <ListItem button key={el.text} component={RouterLink} to={el.link}>
-                      <ListItemIcon>{el.icon}</ListItemIcon>
-                      <ListItemText primary={el.text} />
-                    </ListItem>
-              ))}
-              { IsAdmin(profile ? profile : {role : "other"}) ?
+          </Toolbar>
+        </AppBar>
+        <Drawer className={classes.drawer} variant="persistent" anchor='left' open={true} classes={{
+          paper: classes.drawerPaper,
+        }}>
+          <div className={classes.drawerHeader}>
+            <IconButton color="inherit"><MenuIcon /></IconButton>
+            <Typography className={classes.title} variant="h6" noWrap>
+              Menu
+            </Typography>
+          </div>
+          <Divider />
+          <List>
+            {[{ text: 'notifications', link: '/home/notifications', icon: (<Badge badgeContent={17} color="secondary" ><NotificationsRoundedIcon /></Badge>) },
+            { text: 'request a holiday', link: '/home/holidays', icon: (<QuestionAnswerRoundedIcon />) },
+            { text: 'Calendar', link: '/home/calendar', icon: (<EventAvailableRoundedIcon />) }].map((el) => (
+              <ListItem button key={el.text} component={RouterLink} to={el.link}>
+                <ListItemIcon>{el.icon}</ListItemIcon>
+                <ListItemText primary={el.text} />
+              </ListItem>
+            ))}
+            {IsAdmin(profile ? profile : { role: "other" }) ?
               <ListItem button key={'Add/Edit Employees'} component={RouterLink} to={'/home/employees'}>
-                    <ListItemIcon><AddCircleRoundedIcon /></ListItemIcon>
-                    <ListItemText primary={'Add/Edit Employees'} />
-              </ListItem> :<></> }
-            </List>
-          </Drawer>
-          <PrivateRoute path="/home/profile" component={Profile}/>
-          <AdminRoute path="/home/employees" component={EditEmployee}/>
-          <PrivateRoute path="/home/holidays" component={Holiday}/>
-          <PrivateRoute path="/home/notifications" component={Notifications}/>
-          <PrivateRoute path="/home/calendar" component={Calendar}/>    
+                <ListItemIcon><AddCircleRoundedIcon /></ListItemIcon>
+                <ListItemText primary={'Add/Edit Employees'} />
+              </ListItem> : <></>}
+          </List>
+        </Drawer>
+        <PrivateRoute path="/home/profile" component={Profile} />
+        <AdminRoute path="/home/employees" component={EditEmployee} />
+        <PrivateRoute path="/home/holidays" component={Holiday} />
+        <PrivateRoute path="/home/notifications" component={Notifications} />
+        <PrivateRoute path="/home/calendar" component={Calendar} />
       </Router>
     </div>
   );

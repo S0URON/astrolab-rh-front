@@ -5,12 +5,13 @@ import './App.css';
 import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
 import { UserProvider } from './lib/UserContext';
 
+
 function App() {
 
   return (
     <div className="App">
       <Router>
-      <Redirect to='/home/profile'/>
+        <Redirect to='/home/profile' />
         <UserProvider >
           <PrivateRoute path='/home' component={Nav} />
           <Route path="/login" component={SignIn} />
