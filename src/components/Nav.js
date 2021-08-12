@@ -17,7 +17,7 @@ import PrivateRoute from './PrivateRoute';
 import AdminRoute from './AdminRoute'
 import { IsAdmin } from '../lib/mylib';
 import { useContext } from 'react';
-import { UserContext } from '../lib/UserContext';
+import { UserContext, HolidayContext } from '../lib/UserContext';
 
 const drawerWidth = 240;
 
@@ -114,6 +114,7 @@ export default function Nav() {
   const history = useHistory()
   const classes = useStyles();
   const { profile } = useContext(UserContext)
+  const { holidays } = useContext(HolidayContext)
 
   const logout = async () => {
     const url = 'http://localhost:5050/api/logout'
@@ -156,7 +157,7 @@ export default function Nav() {
           </div>
           <Divider />
           <List>
-            {[{ text: 'notifications', link: '/home/notifications', icon: (<Badge badgeContent={17} color="secondary" ><NotificationsRoundedIcon /></Badge>) },
+            {[{ text: 'notifications', link: '/home/notifications', icon: (<Badge badgeContent={holidays ? holidays.filter((holiday) => holiday.requestedHoliday.thereIsARequest === true).length : null} color="secondary" ><NotificationsRoundedIcon /></Badge>) },
             { text: 'request a holiday', link: '/home/holidays', icon: (<QuestionAnswerRoundedIcon />) },
             { text: 'Calendar', link: '/home/calendar', icon: (<EventAvailableRoundedIcon />) }].map((el) => (
               <ListItem button key={el.text} component={RouterLink} to={el.link}>

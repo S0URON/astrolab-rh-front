@@ -3,7 +3,7 @@ import PrivateRoute from './components/PrivateRoute';
 import SignIn from './components/SignIn';
 import './App.css';
 import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
-import { UserProvider } from './lib/UserContext';
+import { UserProvider, HolidayProvider } from './lib/UserContext';
 
 
 function App() {
@@ -13,7 +13,9 @@ function App() {
       <Router>
         <Redirect to='/home/profile' />
         <UserProvider >
+        <HolidayProvider>
           <PrivateRoute path='/home' component={Nav} />
+        </HolidayProvider>
           <Route path="/login" component={SignIn} />
         </UserProvider>
       </Router>

@@ -1,6 +1,6 @@
 import { Box, makeStyles } from "@material-ui/core"
 import { useState, useContext, useEffect } from "react"
-import { UserContext } from "../lib/UserContext"
+import { HolidayContext, UserContext } from "../lib/UserContext"
 import { ViewState } from '@devexpress/dx-react-scheduler';
 import { format } from "date-fns";
 import {
@@ -18,10 +18,11 @@ import { createDate } from "../lib/mylib";
 
 const useStyles = makeStyles((theme) => ({
     box: {
-        marginLeft : "240px",
+        overflow: "hidden",
+        marginLeft: "240px",
         position: "left",
-        width: window.innerWidth-240,
-        height: window.innerHeight-64,
+        width: window.innerWidth - 245,
+        height: window.innerHeight - 70,
         display: "flex",
         flexDirection: "column",
         border: "1px solid #fff",
@@ -33,67 +34,40 @@ const useStyles = makeStyles((theme) => ({
 
 const Calendar = () => {
     const { profile } = useContext(UserContext)
+    const { holidays } = useContext(HolidayContext)
     const classes = useStyles();
-    const [holidays, setHoliays] = useState([{
-        requestedHoliday: { from: "1970-01-01", to: "1970-01-01", label: "placeholder" },
-        owner: {
-            firstName: "placeholder"
-        }
-    }]);
-
     const [currentDate, setCurrentDate] = useState("2015-02-01")
 
     useEffect(() => {
-        const getHolidays = async () => {
-            const fetchedHolidays = await fetchHolidays()
-            if (fetchedHolidays)
-                setHoliays(fetchedHolidays)
-            else
-                alert('get holidays failed')
-        }
-        if(profile.role)
-            getHolidays()
         const today = format(new Date(), 'yyyy-MM-dd')
         setCurrentDate(today)
+        // eslint-disable-next-line
     }, [])
-
-    const fetchHolidays = async () => {
-        const res = await fetch("http://localhost:5050/api/holidays", {
-            method: 'GET',
-            mode: "cors",
-            headers: new Headers({
-                "Authorization": 'Bearer ' + localStorage.getItem("token"),
-            }),
-        })
-        const data = await res.json()
-        if (res.status === 200)
-            return data
-        else
-            return null
-    }
 
     let schedulerData;
     if (profile) {
-        if (profile.role !== "admin")
-            schedulerData = [{ title: profile ? (typeof (profile.holiday) === "object" ? profile.holiday.requestedHoliday.label : "") : "", startDate: createDate(profile ? (typeof (profile.holiday) === "object" ? profile.holiday.requestedHoliday.from : "") : ""), endDate: createDate(profile ? (typeof (profile.holiday) === "object" ? profile.holiday.requestedHoliday.to : "") : ""), id: profile._id }];
+        if (profile.role !== "admin"){
+            if(typeof (profile.holiday) === "object" ? profile.holiday.state === true : false)
+                schedulerData = [{ title:  profile.holiday.requestedHoliday.label, startDate: createDate(profile.holiday.requestedHoliday.from), endDate: createDate(profile.holiday.requestedHoliday.to), id: profile._id }];
+        }
         else
-            schedulerData = holidays.map((holiday) => (
+            schedulerData = holidays ? holidays.filter(holiday => holiday.state === true).map((holiday) => (
                 { title: holiday ? holiday.requestedHoliday.label : "", startDate: createDate(holiday ? holiday.requestedHoliday.from : ""), endDate: createDate(holiday ? holiday.requestedHoliday.to : ""), id: holiday._id }
-            ))
+            )) : [{ title: "", startDate: "", endDate: "", id: ""}]
     }
     const resource = [{
         fieldName: 'id',
         title: 'employee',
-        instances: holidays.map((holiday) => (
+        instances: holidays ? holidays.filter(holiday => holiday.state === true).map((holiday) => (
             { id: holiday._id, text: holiday.owner ? holiday.owner.firstName + ' ' + holiday.owner.lastName : holiday.requestedHoliday.label }
-        ))
+        )) : [{ id: "holiday._id", text: ""}]
     }]
 
     return (
         <Box className={classes.box}>
             <Scheduler
                 data={schedulerData}
-                height={window.innerHeight-64}
+                height={window.innerHeight - 64}
             >
                 <ViewState
                     currentDate={currentDate}

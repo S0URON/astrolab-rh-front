@@ -49,48 +49,49 @@ const Profile = () => {
         setPasswordDialogOpen(true);
     }
     const handlePwdChange = async () => {
-        const res = await fetch(`http://localhost:5050/api/employee/cp`,{
-            method : "PATCH",
-            mode : 'cors',
-            headers :new Headers({
-                "Authorization": 'Bearer '+localStorage.getItem('token'),
+        const res = await fetch(`http://localhost:5050/api/employee/cp`, {
+            method: "PATCH",
+            mode: 'cors',
+            headers: new Headers({
+                "Authorization": 'Bearer ' + localStorage.getItem('token'),
                 'Content-Type': 'application/json'
             }),
-            body : JSON.stringify(pass)
+            body: JSON.stringify(pass)
         })
         const data = await res.status
-        if(data !== 200)
+        if (data !== 200)
             console.log(data)
         else
             history.go(0)
     }
     const handleProfileChange = async () => {
-        const res = await fetch(`http://localhost:5050/api/employee/me`,{
-            method : "PATCH",
-            mode : 'cors',
-            headers :new Headers({
-                "Authorization": 'Bearer '+localStorage.getItem('token'),
+        const res = await fetch(`http://localhost:5050/api/employee/me`, {
+            method: "PATCH",
+            mode: 'cors',
+            headers: new Headers({
+                "Authorization": 'Bearer ' + localStorage.getItem('token'),
                 'Content-Type': 'application/json'
             }),
-            body : JSON.stringify({...updatedEmployee})
+            body: JSON.stringify({ ...updatedEmployee })
         })
-       
+
         const data = await res.json()
         console.log(data)
         history.go(0)
     }
     return (
-        <Box margin="2% auto" boxShadow=" 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23)" borderRadius="10px" display="flex" flexDirection="column" justifyContent="center" alignItems="center" width="40%">
+        <Box margin="2% auto" border="1px solid #736b5e"
+            borderRadiu="10px" borderRadius="10px" display="flex" flexDirection="column" justifyContent="center" alignItems="center" width="40%">
             <Box className={classes.box}>
                 <Paper className={classes.paper}></Paper>
             </Box>
             <Box className={classes.box}>
                 <Typography className={classes.typography} variant="h5">
                     {profile ? Capitalize(profile.firstName) + " " + Capitalize(profile.lastName) : ""}
-                    { profile ? (profile.role !== "admin" ? 
-                    <IconButton onClick={() => setDialogOpen(true)}>
-                        <EditRoundedIcon />
-                    </IconButton> : <></> ) : <></>}
+                    {profile ? (profile.role !== "admin" ?
+                        <IconButton onClick={() => setDialogOpen(true)}>
+                            <EditRoundedIcon />
+                        </IconButton> : <></>) : <></>}
                     <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} aria-labelledby="form-dialog-title" width="50%">
                         <DialogTitle id="form-dialog-title">Add Employee</DialogTitle>
                         <DialogContent>
@@ -123,7 +124,7 @@ const Profile = () => {
                     </Grid>
                     <Grid item xs={12}>
                         <Typography className={classes.typography}>
-                            <Button onClick={handlePwdOpen}>
+                            <Button variant="outlined" color="primary" onClick={handlePwdOpen}>
                                 Change Password
                             </Button>
                             <Dialog open={passwordDialogOpen} onClose={handlePwdClose} aria-labelledby="form-dialog-title" width="50%">
@@ -135,14 +136,14 @@ const Profile = () => {
                                         label="Old Password"
                                         type="password"
                                         fullWidth
-                                        onChange={(e) => setPass({...pass, oldPassword : e.target.value})}
+                                        onChange={(e) => setPass({ ...pass, oldPassword: e.target.value })}
                                     />
                                     <TextField
                                         margin="dense"
                                         type="password"
                                         name="newPassword"
                                         label="new Password"
-                                        onChange={(e) => setPass({...pass, newPassword : e.target.value})}
+                                        onChange={(e) => setPass({ ...pass, newPassword: e.target.value })}
                                         fullWidth
                                     />
                                     <TextField
@@ -150,7 +151,7 @@ const Profile = () => {
                                         type="password"
                                         name="comfirmNewPassword"
                                         label="comfirm Password"
-                                        onChange={(e) => setPass({...pass, comfirmNewPassword : e.target.value})}
+                                        onChange={(e) => setPass({ ...pass, comfirmNewPassword: e.target.value })}
                                         fullWidth
                                     />
                                 </DialogContent>

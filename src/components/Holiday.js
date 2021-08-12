@@ -3,22 +3,37 @@ import { Box, makeStyles, TextField, Grid, Typography, Button, Divider } from "@
 // eslint-disable-next-line
 import { enGB } from 'date-fns/locale'
 // eslint-disable-next-line
-import { DateRangePickerCalendar } from 'react-nice-dates'
+import { DateRangePicker, START_DATE, END_DATE } from 'react-nice-dates'
 import { useState, useContext } from "react"
 import { UserContext } from "../lib/UserContext"
 import { useHistory } from "react-router-dom"
+import { format } from "date-fns";
 
 
 const useStyles = makeStyles((theme) => ({
     box: {
-        margin: "5% auto",
+        margin: "2% auto",
         width: "600px",
         height: "400px",
         display: "flex",
         flexDirection: "column",
-        border: "1px solid #fff",
+        border: "1px solid #736b5e",
         borderRadius: "10px",
-        boxShadow: " 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23)"
+    },
+    button: {
+        width: "100px",
+        margin: "20px auto"
+    },
+    divider: {
+        marginTop: "100px"
+    },
+    TextField: {
+        maxWidth: "200px",
+        margin: "5px auto"
+
+    },
+    Typography : {
+        marginTop : "50px"
     }
 }));
 
@@ -26,35 +41,72 @@ const Holiday = () => {
     const history = useHistory()
     // eslint-disable-next-line
     const { profile } = useContext(UserContext)
-    const [range, setRange] = useState();
+    const [label, setLabel] = useState();
+    const [startDate, setStartDate] = useState()
+    const [endDate, setEndDate] = useState()
     const classes = useStyles();
 
-    const handleRequest = async () => {
-        const res = await fetch(`http://localhost:5050/api/holidays`, {
-            method: "PATCH",
-            mode: 'cors',
-            headers: new Headers({
-                "Authorization": 'Bearer ' + localStorage.getItem('token'),
-                'Content-Type': 'application/json'
-            }),
-            body: JSON.stringify(range)
-        })
-        const data = await res.status
-        if (data !== 200)
-            console.log(data)
-        else
-            history.get(0)
+    const handleRequest = () => {
+        const makeRequest = async () => {
+            const res = await fetch(`http://localhost:5050/api/holidays`, {
+                method: "PATCH",
+                mode: 'cors',
+                headers: new Headers({
+                    "Authorization": 'Bearer ' + localStorage.getItem('token'),
+                    'Content-Type': 'application/json'
+                }),
+                body: JSON.stringify({label : label , from: format(startDate, 'yyyy-MM-dd'), to: format(endDate, 'yyyy-MM-dd') })
+            })
+            const data = await res.status
+            if (data !== 200)
+                console.log(data)
+            else
+                history.go(0)
+        }
+        if(label && startDate && endDate)
+            makeRequest()
     }
 
     return (
         <>
             <Box className={classes.box}>
-                {/*<DateRangePickerCalendar
-                    startDate={createDate(profile ? profile.holiday.requestedHoliday.from : "")}
-                    endDate={createDate(profile ? profile.holiday.requestedHoliday.to : "")}
+                <Typography variant="h4" className={classes.Typography}>Request A Holiday</Typography>
+                <DateRangePicker
+                    startDate={startDate}
+                    endDate={endDate}
+                    onStartDateChange={setStartDate}
+                    onEndDateChange={setEndDate}
+                    minimumDate={new Date()}
+                    minimumLength={1}
+                    format='dd MMM yyyy'
                     locale={enGB}
-                />*/}
-                <Grid container direction="column" justifyContent="center" alignItems="center" spacing={1} style={{ margin: "auto" }}>
+                >
+                    {({ startDateInputProps, endDateInputProps, focus }) => (
+                        <div className='date-range'>
+                            <input
+                                className={'input' + (focus === START_DATE ? ' -focused' : '')}
+                                {...startDateInputProps}
+                                placeholder='Start date'
+                            />
+                            <span className='date-range_arrow' />
+                            <input
+                                className={'input' + (focus === END_DATE ? ' -focused' : '')}
+                                {...endDateInputProps}
+                                placeholder='End date'
+                            />
+                        </div>
+                    )}
+                </DateRangePicker>
+                <TextField
+                    type="text"
+                    name="name"
+                    onChange={(e) => setLabel(e.target.value)}
+                    label="label"
+                    className={classes.TextField}
+                />
+                <Divider width="100%" className={classes.divider} />
+                <Button variant="outlined" color='primary' onClick={handleRequest} className={classes.button}>request</Button>
+                {/*<Grid container direction="column" justifyContent="center" alignItems="center" spacing={1} style={{ margin: "auto" }}>
                     <Grid item xs={6} sm={6}>
                         <TextField
                             type="date"
@@ -87,7 +139,7 @@ const Holiday = () => {
                     <Grid item xs={6} sm={6}>
                         <Button onClick={handleRequest}>request</Button>
                     </Grid>
-                </Grid>
+                </Grid>*/}
             </Box>
         </>
     )

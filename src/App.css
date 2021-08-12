@@ -5,7 +5,6 @@
 
 body {
   margin: 0;
-  overflow: hidden;
 }
 
 .signing {
@@ -27,8 +26,6 @@ body {
   border-radius: 10px;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
 }
-
-
 
 .MuiTableRow-root [class*="Cell-cell-"]{
   height: 67px;
@@ -299,12 +296,15 @@ body {
 
 
 .date-range {
+  margin-top : 5%;
   display: flex;
-  justify-content: space-between
+  justify-content: center
 }
 
 .date-range .input {
-  width: 100%
+  width: 30%;
+  height: 30px;
+
 }
 
 .date-range_arrow {

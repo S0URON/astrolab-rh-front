@@ -28,6 +28,6 @@ export const createDate = (date) => {
         return
 }
 
-const exports = {Capitalize, loggedIn, IsAdmin}
+const exports = {Capitalize, loggedIn, IsAdmin, createDate}
 
 export default exports
