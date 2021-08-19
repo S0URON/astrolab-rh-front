@@ -3,6 +3,7 @@ import { useHistory } from "react-router-dom";
 
 export const UserContext = createContext(null)
 export const HolidayContext = createContext(null)
+export const ErrorContext = createContext(null)
 
 export const UserProvider = (props) => {
     const [profile, setProfile] = useState(null)
@@ -36,7 +37,7 @@ export const UserProvider = (props) => {
 
 export const HolidayProvider = (props) => {
     const [holidays, setHolidays] = useState(null);
-    const {profile }= useContext(UserContext)
+    const { profile }= useContext(UserContext)
     useEffect(() => {
         const getHolidays = async () => {
             const fetchedHolidays = await fetchHolidays()
@@ -92,4 +93,11 @@ export const HolidayProvider = (props) => {
     }
 
     return <HolidayContext.Provider value={{ holidays, setHolidays }} {...props} />
+}
+
+export const ErrorProvider = (props) => {
+
+    const [backendErr, setBackendErr] = useState(null) 
+
+    return <ErrorContext.Provider value={{backendErr, setBackendErr}} {...props}/>
 }

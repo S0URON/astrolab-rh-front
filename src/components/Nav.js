@@ -1,5 +1,5 @@
 import { alpha, makeStyles } from '@material-ui/core/styles';
-import { Drawer, ListItem, List, Divider, ListItemText, IconButton, Typography, Toolbar, AppBar, Badge, ListItemIcon } from '@material-ui/core';
+import { Drawer, ListItem, List, Divider, ListItemText, Avatar, IconButton, Typography, Toolbar, AppBar, Badge, ListItemIcon } from '@material-ui/core';
 import { BrowserRouter as Router, Link as RouterLink, useHistory } from 'react-router-dom';
 import MenuIcon from '@material-ui/icons/Menu';
 import AccountCircle from '@material-ui/icons/AccountCircle';
@@ -7,6 +7,7 @@ import AddCircleRoundedIcon from '@material-ui/icons/AddCircleRounded';
 import NotificationsRoundedIcon from '@material-ui/icons/NotificationsRounded';
 import EventAvailableRoundedIcon from '@material-ui/icons/EventAvailableRounded';
 import QuestionAnswerRoundedIcon from '@material-ui/icons/QuestionAnswerRounded';
+import Brightness4RoundedIcon from '@material-ui/icons/Brightness4Rounded';
 import ExitToAppRoundedIcon from '@material-ui/icons/ExitToAppRounded';
 import Profile from './Profile';
 import Notifications from './Notifications';
@@ -106,11 +107,15 @@ const useStyles = makeStyles((theme) => ({
   appbar: {
     width: `calc(100% - ${drawerWidth}px)`,
     marginLeft: drawerWidth,
+  },
+  small : {
+    width: theme.spacing(4),
+    height: theme.spacing(4),
   }
 }));
 
 
-export default function Nav() {
+export default function Nav({ setTheme, theme }) {
   const history = useHistory()
   const classes = useStyles();
   const { profile } = useContext(UserContext)
@@ -137,11 +142,16 @@ export default function Nav() {
           <Toolbar>
             <div className={classes.grow} />
             <div className={classes.sectionDesktop}>
+              <IconButton color="inherit" onClick={() => theme === 'light' ? setTheme("dark") : setTheme("light")}>
+                <Brightness4RoundedIcon />
+              </IconButton>
               <IconButton color="inherit" component={RouterLink} to='/home/profile'>
-                <AccountCircle />
+                <Avatar alt="placeholder" src={profile?.profileImg}   className={classes.small}/>
+                <Typography style={{ margin: "0 5px" }}>{profile?.firstName} {profile?.lastName}</Typography>
               </IconButton>
               <IconButton color="inherit" onClick={logout}>
                 <ExitToAppRoundedIcon />
+                <Typography>Logout</Typography>
               </IconButton>
             </div>
           </Toolbar>

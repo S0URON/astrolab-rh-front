@@ -5,21 +5,16 @@ import EditRoundedIcon from '@material-ui/icons/EditRounded';
 import { UserContext } from '../lib/UserContext';
 import ProfileForm from './FormExample';
 import { useHistory } from 'react-router-dom'
+import errorHandler, { formValidator } from '../lib/errorHandler';
 
 
 const useStyles = makeStyles((theme) => ({
-    root: {
-        flexGrow: 1,
-    },
     paper: {
-        padding: theme.spacing(2),
         textAlign: 'center',
         color: theme.palette.text.secondary,
         borderRadius: '50%',
-        width: 100,
-        height: 100,
-        backgroundImage: `url(${'https://media.istockphoto.com/vectors/default-gray-placeholder-man-vector-id871752462?b=1&k=6&m=871752462&s=612x612&w=0&h=su9GconcV7Pr_uuQm1GDnPEFoqgGz0dliMHMfmJf_ro='})`,
-        backgroundRepeat: "no-repeat",
+        width: 150,
+        height: 150,
         backgroundPosition: "center",
         backgroundSize: "cover",
     },
@@ -36,10 +31,12 @@ const Profile = () => {
     const history = useHistory()
     const { profile } = useContext(UserContext)
     const [updatedEmployee, setUpdatedEmployee] = useState({})
-    const [pass, setPass] = useState({})
+    const [pass, setPass] = useState({ oldPassword: "", newPassword: "", comfirmNewPassword: "" })
     const classes = useStyles();
     const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
+    const [changePassErr, setChangePassErr] = useState({ msg: "", type: "" })
     const [dialogOpen, setDialogOpen] = useState(false);
+    const [error, setError] = useState({msg : "", type : ""});
 
 
     const handlePwdClose = () => {
@@ -58,12 +55,13 @@ const Profile = () => {
             }),
             body: JSON.stringify(pass)
         })
-        const data = await res.status
-        if (data !== 200)
-            console.log(data)
+        const data = await res.json()
+        if (res.status !== 200)
+            setChangePassErr(errorHandler(data.error))
         else
             history.go(0)
     }
+
     const handleProfileChange = async () => {
         const res = await fetch(`http://localhost:5050/api/employee/me`, {
             method: "PATCH",
@@ -79,30 +77,43 @@ const Profile = () => {
         console.log(data)
         history.go(0)
     }
+    
+    const passValidator = () => {
+        if (pass.oldPassword === "")
+            setChangePassErr({ msg: 'this feild is required', type: "oldpass" })
+        else if (pass.newPassword === "")
+            setChangePassErr({ msg: 'this feild is required', type: "newpass" })
+        else if (pass.comfirmNewPassword === "")
+            setChangePassErr({msg:"this feild is required" , type:"confnewpass"})
+        else if (pass.comfirmNewPassword !== pass.newPassword)
+            setChangePassErr({msg:"new password and confirm password should match" , type:"confnewpass"})
+        else
+            handlePwdChange()
+    }
+    
     return (
-        <Box margin="2% auto" border="1px solid #736b5e"
-            borderRadiu="10px" borderRadius="10px" display="flex" flexDirection="column" justifyContent="center" alignItems="center" width="40%">
+        <Box margin="2% auto" border="1px solid #736b5e" style={{overflow : "hidden"}}
+            borderRadius="10px" display="flex" flexDirection="column" justifyContent="center" alignItems="center" width="40%">
             <Box className={classes.box}>
-                <Paper className={classes.paper}></Paper>
+                <Paper variant="outlined" className={classes.paper} style={{backgroundImage: `url(${profile?.profileImg})`}}></Paper>
             </Box>
             <Box className={classes.box}>
                 <Typography className={classes.typography} variant="h5">
                     {profile ? Capitalize(profile.firstName) + " " + Capitalize(profile.lastName) : ""}
-                    {profile ? (profile.role !== "admin" ?
                         <IconButton onClick={() => setDialogOpen(true)}>
                             <EditRoundedIcon />
-                        </IconButton> : <></>) : <></>}
+                        </IconButton>
                     <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} aria-labelledby="form-dialog-title" width="50%">
-                        <DialogTitle id="form-dialog-title">Add Employee</DialogTitle>
+                        <DialogTitle id="form-dialog-title">Edit Profile</DialogTitle>
                         <DialogContent>
-                            <ProfileForm employee={profile} profile={updatedEmployee} update={setUpdatedEmployee} />
+                            <ProfileForm employee={profile} profile={updatedEmployee} update={setUpdatedEmployee} error={error}/>
                             <Divider />
                         </DialogContent>
                         <DialogActions>
                             <Button onClick={() => setDialogOpen(false)} color="primary">
                                 Cancel
                             </Button>
-                            <Button color="primary" onClick={handleProfileChange}>
+                            <Button color="primary" onClick={()=>formValidator(updatedEmployee, handleProfileChange, setError)}>
                                 save
                             </Button>
                         </DialogActions>
@@ -135,23 +146,32 @@ const Profile = () => {
                                         name="oldPassword"
                                         label="Old Password"
                                         type="password"
+                                        required
                                         fullWidth
-                                        onChange={(e) => setPass({ ...pass, oldPassword: e.target.value })}
+                                        error={changePassErr.type === "oldpass"}
+                                        helperText={changePassErr.type === "oldpass" ? changePassErr.msg : ""}
+                                        onChange={(e) => {setPass({ ...pass, oldPassword: e.target.value }) ; setChangePassErr({ msg: "", type: "" })}}
                                     />
                                     <TextField
                                         margin="dense"
                                         type="password"
+                                        required
                                         name="newPassword"
                                         label="new Password"
-                                        onChange={(e) => setPass({ ...pass, newPassword: e.target.value })}
+                                        error={changePassErr.type === "newpass"}
+                                        helperText={changePassErr.type === "newpass" ? changePassErr.msg : ""}
+                                        onChange={(e) => {setPass({ ...pass, newPassword: e.target.value }) ; setChangePassErr({ msg: "", type: "" })}}
                                         fullWidth
                                     />
                                     <TextField
                                         margin="dense"
                                         type="password"
+                                        required
                                         name="comfirmNewPassword"
                                         label="comfirm Password"
-                                        onChange={(e) => setPass({ ...pass, comfirmNewPassword: e.target.value })}
+                                        error={changePassErr.type === "confnewpass"}
+                                        helperText={changePassErr.type === "confnewpass" ? changePassErr.msg : ""}
+                                        onChange={(e) => {setPass({ ...pass, comfirmNewPassword: e.target.value }) ; setChangePassErr({ msg: "", type: "" })}}
                                         fullWidth
                                     />
                                 </DialogContent>
@@ -159,7 +179,7 @@ const Profile = () => {
                                     <Button onClick={handlePwdClose} color="primary">
                                         Cancel
                                     </Button>
-                                    <Button color="primary" onClick={handlePwdChange}>
+                                    <Button color="primary" onClick={passValidator}>
                                         confirm change
                                     </Button>
                                 </DialogActions>

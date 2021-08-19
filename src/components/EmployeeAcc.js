@@ -3,7 +3,7 @@ import ProfileForm from './FormExample';
 import EditRoundedIcon from '@material-ui/icons/EditRounded';
 import { Paper, Typography, makeStyles, Divider, Button, Dialog, DialogActions, DialogTitle, DialogContent, IconButton } from '@material-ui/core'
 import { useHistory } from 'react-router-dom';
-
+import { formValidator } from '../lib/errorHandler';
 const useStyles = makeStyles((theme) => ({
     root: {
         flexGrow: 1,
@@ -66,12 +66,14 @@ const EmployeeAcc = ({ employee }) => {
     const classes = useStyles();
     const [dialogOpen, setDialogOpen] = useState(false);
     const [updatedEmployee, setUpdatedEmployee] = useState({})
+    const [error, setError] = useState({msg : "", type : ""});
     const handleCloseDialog = () => {
         setDialogOpen(false);
     }
     const handleOpenDialog = () => {
         setDialogOpen(true);
     }
+
     const patchUser = async () =>{
         const res = await fetch(`http://localhost:5050/api/employee`,{
             method : "PATCH",
@@ -89,7 +91,7 @@ const EmployeeAcc = ({ employee }) => {
     return (
         <div>
             <Paper className={classes.paper} variant="outlined">
-                <div className={classes.pic}>
+                <div className={classes.pic} style={{backgroundImage: `url(${employee?.profileImg}`}}>
                 </div>
                 <Typography className={classes.text}>
                     {employee.firstName + " " + employee.lastName}
@@ -102,21 +104,21 @@ const EmployeeAcc = ({ employee }) => {
                 </IconButton>
             </Paper>
             <Dialog open={dialogOpen} onClose={handleCloseDialog} aria-labelledby="form-dialog-title" width="50%">
-                <DialogTitle id="form-dialog-title">Add Employee</DialogTitle>
+                <DialogTitle id="form-dialog-title">Edit Employee</DialogTitle>
                 <DialogContent>
-                    <ProfileForm employee={employee} profile={updatedEmployee} update={setUpdatedEmployee} />
+                    <ProfileForm employee={employee} profile={updatedEmployee} update={setUpdatedEmployee} error={error}/>
                     <Divider />
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseDialog} color="primary">
                         Cancel
                     </Button>
-                    <Button color="primary" onClick={patchUser}>
+                    <Button color="primary" onClick={()=> formValidator(updatedEmployee, patchUser, setError)}>
                         save
                     </Button>
                 </DialogActions>
             </Dialog>
-        </div >
+        </div > 
     )
 }
 

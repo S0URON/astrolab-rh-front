@@ -3,8 +3,6 @@ import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
 import Grid from '@material-ui/core/Grid';
 import Box from '@material-ui/core/Box';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
@@ -13,6 +11,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import { Link, useHistory } from 'react-router-dom';
 import { UserContext } from '../lib/UserContext'
+import errorHandler from "../lib/errorHandler"
+import validator from 'validator';
 
 
 function Copyright() {
@@ -50,9 +50,9 @@ export default function SignIn() {
   const history = useHistory();
   const classes = useStyles();
   const [creds, setCreds] = useState({ email: "", password: "" })
+  const [loginErr, setloginErr] = useState({ msg: "", type: "" })
 
-  const login = async (e) => {
-    e.preventDefault()
+  const login = async () => {
     const url = 'http://localhost:5050/api/login'
     const response = await fetch(url, {
       method: 'POST',
@@ -71,7 +71,21 @@ export default function SignIn() {
       setProfile(data.user);
       localStorage.setItem('token', data.token);
       history.push('/home');
+    } else {
+      setloginErr(errorHandler(data.error))
     }
+  }
+
+  const signInValidator = (e) => {
+    e.preventDefault()
+    if (creds.email === "")
+      setloginErr({ msg: 'email is required', type: "email" })
+    else if (!validator.isEmail(creds.email))
+      setloginErr({ msg: 'wrong email format', type: "email" })
+    else if (creds.password === "")
+      setloginErr({ msg: 'password is required', type: "password" })
+    else
+      login()
 
   }
 
@@ -97,6 +111,8 @@ export default function SignIn() {
             autoComplete="email"
             onChange={(e) => setCreds({ ...creds, email: e.target.value })}
             autoFocus
+            error={loginErr.type === "email"}
+            helperText={loginErr.type === "email" ? loginErr.msg : ""}
           />
           <TextField
             variant="outlined"
@@ -109,10 +125,8 @@ export default function SignIn() {
             id="password"
             onChange={(e) => setCreds({ ...creds, password: e.target.value })}
             autoComplete="current-password"
-          />
-          <FormControlLabel
-            control={<Checkbox value="remember" color="primary" />}
-            label="Remember me"
+            error={loginErr.type === "password"}
+            helperText={loginErr.type === "password" ? loginErr.msg : ""}
           />
           <Button
             type="submit"
@@ -120,7 +134,7 @@ export default function SignIn() {
             variant="contained"
             color="primary"
             className={classes.submit}
-            onClick={login}
+            onClick={signInValidator}
           >
             Sign In
           </Button>

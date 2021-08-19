@@ -1,20 +1,20 @@
 import { useState, useEffect } from 'react';
 import { Box, Grid, Dialog, DialogActions, DialogTitle, DialogContent, TextField, makeStyles, Button } from '@material-ui/core'
 import EmployeeAcc from './EmployeeAcc';
-
+import { formValidator } from '../lib/errorHandler';
 
 const dummy = [
     {
-      firstName: "aazdaz",
-      lastName: "zdadad",
-      email: "dadada",
-      phone_primary: "adadaz",
-      phone_secondary: "dazdada",
-      adress: 'adada',
-      hiring_date: "azdazdazd",
-      _id: 0,
+        firstName: "aazdaz",
+        lastName: "zdadad",
+        email: "dadada",
+        phone_primary: "adadaz",
+        phone_secondary: "dazdada",
+        adress: 'adada',
+        hiring_date: "azdazdazd",
+        _id: 0,
     },
-  ];
+];
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -67,6 +67,7 @@ const useStyles = makeStyles((theme) => ({
 const EditEmployee = () => {
     const [dialogOpen, setDialogOpen] = useState(false);
     const [employees, setEmployees] = useState(dummy);
+    const [error, setError] = useState({ msg: '', type: '' })
     const [newEmployee, setNewEmployee] = useState({
         firstName: "",
         lastName: "",
@@ -145,6 +146,8 @@ const EditEmployee = () => {
                                 margin="dense"
                                 name="firstName"
                                 label="FirstName"
+                                error={error.type === "firstName"}
+                                helperText={error.type === "firstName" ? error.msg : ""}
                                 fullWidth
                                 onChange={(e) => { setNewEmployee({ ...newEmployee, firstName: e.target.value }) }}
                             />
@@ -152,6 +155,8 @@ const EditEmployee = () => {
                                 margin="dense"
                                 name="lastName"
                                 label="LastName"
+                                error={error.type === "lastName"}
+                                helperText={error.type === "lastName" ? error.msg : ""}
                                 fullWidth
                                 onChange={(e) => { setNewEmployee({ ...newEmployee, lastName: e.target.value }) }}
                             />
@@ -160,6 +165,8 @@ const EditEmployee = () => {
                                 name="email"
                                 label="Email Address"
                                 type="email"
+                                error={error.type === "email"}
+                                helperText={error.type === "email" ? error.msg : ""}
                                 fullWidth
                                 onChange={(e) => { setNewEmployee({ ...newEmployee, email: e.target.value }) }}
                             />
@@ -167,6 +174,9 @@ const EditEmployee = () => {
                                 margin="dense"
                                 name="phone_primary"
                                 label="Primary Phone Number"
+                                type="number"
+                                error={error.type === "phone_primary"}
+                                helperText={error.type === "phone_primary" ? error.msg : ""}
                                 fullWidth
                                 onChange={(e) => { setNewEmployee({ ...newEmployee, phone_primary: e.target.value }) }}
                             />
@@ -174,6 +184,9 @@ const EditEmployee = () => {
                                 margin="dense"
                                 name="phone_secondary"
                                 label="Secondary Phone Number"
+                                type="number"
+                                error={error.type === "phone_secondary"}
+                                helperText={error.type === "phone_secondary" ? error.msg : ""}
                                 fullWidth
                                 onChange={(e) => { setNewEmployee({ ...newEmployee, phone_secondary: e.target.value }) }}
                             />
@@ -181,6 +194,8 @@ const EditEmployee = () => {
                                 margin="dense"
                                 name="adress"
                                 label="adress"
+                                error={error.type === "adress"}
+                                helperText={error.type === "adress" ? error.msg : ""}
                                 fullWidth
                                 onChange={(e) => { setNewEmployee({ ...newEmployee, adress: e.target.value }) }}
                             />
@@ -188,14 +203,56 @@ const EditEmployee = () => {
                                 margin="dense"
                                 type="date"
                                 id="hiring_date"
-                                name="hiring_date"
+                                label="hiring_date"
+                                error={error.type === "date"}
+                                helperText={error.type === "date" ? error.msg : ""}
                                 onChange={(e) => { setNewEmployee({ ...newEmployee, hiring_date: e.target.value }) }}
                                 fullWidth
                             />
                             <TextField
                                 margin="dense"
+                                type="date"
+                                id="hiring_date"
+                                label="leaving_date"
+                                error={error.type === "leaving_date"}
+                                helperText={error.type === "leaving_date" ? error.msg : ""}
+                                onChange={(e) => { setNewEmployee({ ...newEmployee, leaving_date: e.target.value }) }}
+                                fullWidth
+                            />
+                            <TextField
+                                margin="dense"
+                                type="date"
+                                id="hiring_date"
+                                label="birthdate"
+                                error={error.type === "birthdate"}
+                                helperText={error.type === "birthdate" ? error.msg : ""}
+                                onChange={(e) => { setNewEmployee({ ...newEmployee, birthdate: e.target.value }) }}
+                                fullWidth
+                            />
+                            <TextField
+                                margin="dense"
+                                label="post"
+                                error={error.type === "post"}
+                                helperText={error.type === "post" ? error.msg : ""}
+                                fullWidth
+                                onChange={(e) => { setNewEmployee({ ...newEmployee, post: e.target.value }) }}
+                            />
+                            <TextField
+                                margin="dense"
+                                label="CIN"
+                                type="number"
+                                error={error.type === "cin"}
+                                helperText={error.type === "cin" ? error.msg : ""}
+                                fullWidth
+                                onChange={(e) => { setNewEmployee({ ...newEmployee, cin: e.target.value }) }}
+                            />
+                            <TextField
+                                margin="dense"
                                 name="password"
                                 label="password"
+                                type="password"
+                                error={error.type === "password"}
+                                helperText={error.type === "password" ? error.msg : ""}
                                 fullWidth
                                 onChange={(e) => { setNewEmployee({ ...newEmployee, password: e.target.value }) }}
                             />
@@ -204,7 +261,7 @@ const EditEmployee = () => {
                             <Button onClick={handleCloseDialog} color="primary">
                                 Cancel
                             </Button>
-                            <Button color="primary" onClick={handleAddEmployee}>
+                            <Button color="primary" onClick={() => formValidator(newEmployee, handleAddEmployee, setError)}>
                                 Add
                             </Button>
                         </DialogActions>

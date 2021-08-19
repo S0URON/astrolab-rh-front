@@ -7,6 +7,17 @@ body {
   margin: 0;
 }
 
+
+::-webkit-scrollbar {
+  width: 7px;
+}
+
+.MuiDialog-scrollPaper {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
 .signing {
   text-align: center;
   margin: 5em auto;

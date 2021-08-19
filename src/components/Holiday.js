@@ -1,5 +1,5 @@
 // eslint-disable-next-line
-import { Box, makeStyles, TextField, Grid, Typography, Button, Divider } from "@material-ui/core"
+import { Box, makeStyles, TextField, Grid, Typography, Button, Divider, TextareaAutosize } from "@material-ui/core"
 // eslint-disable-next-line
 import { enGB } from 'date-fns/locale'
 // eslint-disable-next-line
@@ -14,7 +14,6 @@ const useStyles = makeStyles((theme) => ({
     box: {
         margin: "2% auto",
         width: "600px",
-        height: "400px",
         display: "flex",
         flexDirection: "column",
         border: "1px solid #736b5e",
@@ -25,15 +24,15 @@ const useStyles = makeStyles((theme) => ({
         margin: "20px auto"
     },
     divider: {
-        marginTop: "100px"
+        margin: "20px auto 0 auto"
     },
     TextField: {
         maxWidth: "200px",
-        margin: "5px auto"
+        margin: "50px 5px"
 
     },
-    Typography : {
-        marginTop : "50px"
+    Typography: {
+        marginTop: "50px"
     }
 }));
 
@@ -44,6 +43,8 @@ const Holiday = () => {
     const [label, setLabel] = useState();
     const [startDate, setStartDate] = useState()
     const [endDate, setEndDate] = useState()
+    const [description, setDescription] = useState()
+    const [holidayErr, setHolidayErr] = useState({ msg: "", type: "" })
     const classes = useStyles();
 
     const handleRequest = () => {
@@ -55,7 +56,7 @@ const Holiday = () => {
                     "Authorization": 'Bearer ' + localStorage.getItem('token'),
                     'Content-Type': 'application/json'
                 }),
-                body: JSON.stringify({label : label , from: format(startDate, 'yyyy-MM-dd'), to: format(endDate, 'yyyy-MM-dd') })
+                body: JSON.stringify({ label: label, from: format(startDate, 'yyyy-MM-dd'), to: format(endDate, 'yyyy-MM-dd'), description : description })
             })
             const data = await res.status
             if (data !== 200)
@@ -63,8 +64,15 @@ const Holiday = () => {
             else
                 history.go(0)
         }
-        if(label && startDate && endDate)
+        if (label && startDate && endDate && description)
             makeRequest()
+        else
+            if (!label || label === "")
+                setHolidayErr({ msg: "label is required !", type: "holiday label" })
+            else if (!description || description === "")
+                setHolidayErr({ msg: "description is required !", type: "holiday description" })
+            else
+                setHolidayErr({ msg: "start date and end date are required", type: "holiday date" })
     }
 
     return (
@@ -97,49 +105,32 @@ const Holiday = () => {
                         </div>
                     )}
                 </DateRangePicker>
+                <Box>
                 <TextField
                     type="text"
-                    name="name"
-                    onChange={(e) => setLabel(e.target.value)}
+                    name="label"
+                    variant="outlined"
+                    onChange={(e) => { setLabel(e.target.value); setHolidayErr({ msg: "", type: "" }) }}
                     label="label"
                     className={classes.TextField}
+                    error={holidayErr.type === "holiday label"}
+                    helperText={holidayErr.type === "holiday label" ? holidayErr.msg : ""}
                 />
-                <Divider width="100%" className={classes.divider} />
+                <TextField
+                    type="text"
+                    variant="outlined"
+                    multiline
+                    className={classes.TextField}
+                    name="description"
+                    onChange={(e) => { setDescription(e.target.value); setHolidayErr({ msg: "", type: "" }) }}
+                    label="description"
+                    error={holidayErr.type === "holiday description"}
+                    helperText={holidayErr.type === "holiday description" ? holidayErr.msg : ""}
+                />
+                </Box>
+                <Typography variant="subtitle2" color="secondary">{holidayErr.type === "holiday date" ? holidayErr.msg : ""}</Typography>
+                <Divider width="80%" variant="middle" className={classes.divider} />
                 <Button variant="outlined" color='primary' onClick={handleRequest} className={classes.button}>request</Button>
-                {/*<Grid container direction="column" justifyContent="center" alignItems="center" spacing={1} style={{ margin: "auto" }}>
-                    <Grid item xs={6} sm={6}>
-                        <TextField
-                            type="date"
-                            name="from"
-                            label="from"
-                            onChange={(e) => setRange({ ...range, from: e.target.value })}
-                            defaultValue="1970-01-01"
-                            fullWidth
-                        />
-                    </Grid>
-                    <Grid item xs={6} sm={6}>
-                        <TextField
-                            type="date"
-                            name="to"
-                            onChange={(e) => setRange({ ...range, to: e.target.value })}
-                            fullWidth
-                            label="to"
-                            defaultValue="1970-01-01"
-                        />
-                    </Grid>
-                    <Grid item xs={6} sm={6}>
-                        <TextField
-                            type="text"
-                            name="name"
-                            onChange={(e) => setRange({ ...range, label: e.target.value })}
-                            fullWidth
-                            label="label"
-                        />
-                    </Grid>
-                    <Grid item xs={6} sm={6}>
-                        <Button onClick={handleRequest}>request</Button>
-                    </Grid>
-                </Grid>*/}
             </Box>
         </>
     )

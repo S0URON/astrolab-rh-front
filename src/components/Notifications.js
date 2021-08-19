@@ -1,6 +1,6 @@
-import { Box, Typography, Grid, Paper, makeStyles, Divider, Accordion, AccordionSummary, AccordionDetails, Button } from "@material-ui/core"
+import { Box, Typography, Grid, Paper, makeStyles, Divider, Accordion, AccordionSummary, AccordionDetails, Button, TextField } from "@material-ui/core"
 import { HolidayContext, UserContext } from "../lib/UserContext"
-import { useContext } from "react"
+import { useContext, useState } from "react"
 import { Link as RouterLink, useHistory } from 'react-router-dom'
 import { IsAdmin } from "../lib/mylib"
 
@@ -12,12 +12,13 @@ const useStyles = makeStyles((theme) => ({
         display: "flex",
         justifyContent: "center",
         alignItems: 'center',
-        width: "40%"
+        width: "50%"
     },
     paper: {
         padding: theme.spacing(2),
         display: "flex",
-        justifyContent: "space-between"
+        justifyContent: "space-between",
+        margin : "5px"
 
     },
     button: {
@@ -29,6 +30,8 @@ const Notifications = () => {
     const classes = useStyles()
     const { holidays } = useContext(HolidayContext)
     const { profile } = useContext(UserContext)
+    const [state, setState] = useState(false)
+    const [reason, setReason] = useState("none")
     const history = useHistory()
 
     const handleRequest = async (holiday, state) => {
@@ -39,16 +42,16 @@ const Notifications = () => {
                 "Authorization": 'Bearer ' + localStorage.getItem('token'),
                 'Content-Type': 'application/json'
             }),
-            body: JSON.stringify({ id: holiday._id, state: state })
+            body: JSON.stringify({ id: holiday._id, state: state, reason : reason })
         })
         const data = await res.status
         if (data !== 200)
             console.log(data)
-        else{
+        else {
             console.log(data)
             history.go(0)
         }
-           
+
     }
     return (
         <Box margin="5% auto" className={classes.root}>
@@ -80,11 +83,22 @@ const Notifications = () => {
                                                 <Typography>
                                                     {'motive : ' + holiday.requestedHoliday.label}
                                                 </Typography>
+                                                <Typography>
+                                                    {'description : ' + holiday.requestedHoliday.description}
+                                                </Typography>
+                                            </Box>
+                                            <Box display={state ? 'block' : 'none'} >
+                                                <TextField
+                                                    margin="5px"
+                                                    label="reason"
+                                                    onChange={e => setReason(e.target.value)}
+                                                />
+                                                <Button variant="outlined" color="secondary" className={classes.button} onClick={() => {handleRequest(holiday, false) ; setState(!state)}}>comfirm reject</Button>
                                             </Box>
                                             <Box>
                                                 <Button variant="outlined" component={RouterLink} to={"/home/calendar"}>check calendar</Button>
                                                 <Button variant="outlined" color='primary' className={classes.button} onClick={() => handleRequest(holiday, true)}>accept</Button>
-                                                <Button variant="outlined" color="secondary" className={classes.button} onClick={() => handleRequest(holiday, false)}>reject</Button>
+                                                <Button variant="outlined" color="secondary" className={classes.button} onClick={() => setState(!state)}>reject</Button>
                                             </Box>
                                         </Box>
                                     </AccordionDetails>
@@ -94,13 +108,13 @@ const Notifications = () => {
                     )) : <></>
                 }
                 {
-                   !IsAdmin(profile ? profile : {role : "other"}) ? (holidays ? holidays.map(holiday => (
+                    (holidays ? holidays.map(holiday => (
                         <Paper className={classes.paper} elevation={3} key={holiday._id}>
                             <Typography className={classes.heading}>{holiday.owner && typeof (holiday.owner) === "object" ? '(' + holiday.owner.firstName + " " + holiday.owner.lastName + ') has requested a holiday' : "you have requested a holiday"}</Typography>
                             <Typography>{holiday.requestedHoliday.from + "/" + holiday.requestedHoliday.to}</Typography>
-                            <Typography className={classes.heading}>{holiday.state ? "accepted" : (holiday.requestedHoliday.thereIsARequest ? "pending" : "rejected")}</Typography>
+                            <Typography className={classes.heading}>{holiday.state ? "accepted" : (holiday.requestedHoliday.thereIsARequest ? "pending" : `rejected, reason: ${holiday.requestedHoliday.reason}` )}</Typography>
                         </Paper>
-                    )) : <></>) : <></>
+                    )) : <></>)
                 }
             </Grid>
         </Box>

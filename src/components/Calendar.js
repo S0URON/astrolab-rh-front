@@ -1,4 +1,4 @@
-import { Box, makeStyles } from "@material-ui/core"
+import { Box, makeStyles, Dialog, DialogActions, DialogTitle, DialogContent, Button, Typography } from "@material-ui/core"
 import { useState, useContext, useEffect } from "react"
 import { HolidayContext, UserContext } from "../lib/UserContext"
 import { ViewState } from '@devexpress/dx-react-scheduler';
@@ -10,11 +10,9 @@ import {
     DateNavigator,
     Appointments,
     Resources,
-    TodayButton,
-    AppointmentTooltip
+    TodayButton
 } from '@devexpress/dx-react-scheduler-material-ui';
 import { createDate } from "../lib/mylib";
-
 
 const useStyles = makeStyles((theme) => ({
     box: {
@@ -27,7 +25,11 @@ const useStyles = makeStyles((theme) => ({
         flexDirection: "column",
         border: "1px solid #fff",
         borderRadius: "10px",
-        boxShadow: " 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23)"
+        boxShadow: " 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23)",
+        color: theme.typography.h4.color
+    },
+    Dialog: {
+        margin: 30
     }
 }));
 
@@ -35,6 +37,8 @@ const useStyles = makeStyles((theme) => ({
 const Calendar = () => {
     const { profile } = useContext(UserContext)
     const { holidays } = useContext(HolidayContext)
+    const [selectedAppointment, setSelectedAppointment] = useState()
+    const [open, setOpen] = useState(false)
     const classes = useStyles();
     const [currentDate, setCurrentDate] = useState("2015-02-01")
 
@@ -44,25 +48,47 @@ const Calendar = () => {
         // eslint-disable-next-line
     }, [])
 
+    const filterStuff = (e) => {
+        const appointment = e.target.innerHTML.split('-')
+        let selectedHolidays;
+        if (profile?.role === "admin")
+            selectedHolidays = holidays?.filter((holiday) => holiday.owner?.firstName + ' ' + holiday.owner?.lastName === appointment[1]);
+        else
+            selectedHolidays = [profile.holiday]
+        setSelectedAppointment(selectedHolidays)
+        console.log(selectedAppointment)
+    }
+
     let schedulerData;
     if (profile) {
-        if (profile.role !== "admin"){
-            if(typeof (profile.holiday) === "object" ? profile.holiday.state === true : false)
-                schedulerData = [{ title:  profile.holiday.requestedHoliday.label, startDate: createDate(profile.holiday.requestedHoliday.from), endDate: createDate(profile.holiday.requestedHoliday.to), id: profile._id }];
+        if (profile.role !== "admin") {
+            if (typeof (profile.holiday) === "object" ? (profile.holiday.state === true || (profile.holiday.state === false && profile.holiday.requestedHoliday.thereIsARequest)) : false)
+                schedulerData = [{ title: profile.holiday.requestedHoliday.label + '-' + profile.firstName + ' ' + profile.lastName, startDate: createDate(profile.holiday.requestedHoliday.from), endDate: createDate(profile.holiday.requestedHoliday.to), id: profile._id }];
         }
         else
-            schedulerData = holidays ? holidays.filter(holiday => holiday.state === true).map((holiday) => (
-                { title: holiday ? holiday.requestedHoliday.label : "", startDate: createDate(holiday ? holiday.requestedHoliday.from : ""), endDate: createDate(holiday ? holiday.requestedHoliday.to : ""), id: holiday._id }
-            )) : [{ title: "", startDate: "", endDate: "", id: ""}]
+            schedulerData = holidays ? holidays.filter(holiday => (holiday.state === true || (holiday.state === false && holiday.requestedHoliday.thereIsARequest))).map((holiday) => (
+                { title: holiday ? holiday.requestedHoliday.label + '-' + holiday.owner?.firstName + ' ' + holiday.owner?.lastName : "", startDate: createDate(holiday ? holiday.requestedHoliday.from : ""), endDate: createDate(holiday ? holiday.requestedHoliday.to : ""), id: holiday._id }
+            )) : [{ title: "", startDate: "", endDate: "", id: "" }]
     }
     const resource = [{
         fieldName: 'id',
         title: 'employee',
-        instances: holidays ? holidays.filter(holiday => holiday.state === true).map((holiday) => (
+        instances: holidays ? holidays.filter(holiday => (holiday.state === true || (holiday.state === false && holiday.requestedHoliday.thereIsARequest))).map((holiday) => (
             { id: holiday._id, text: holiday.owner ? holiday.owner.firstName + ' ' + holiday.owner.lastName : holiday.requestedHoliday.label }
-        )) : [{ id: "holiday._id", text: ""}]
+        )) : [{ id: "holiday._id", text: "" }]
     }]
 
+
+    const Appointment = ({
+        children, style, ...restProps
+    }) => (
+        <Appointments.Appointment
+            {...restProps}
+            onClick={(e) => { setOpen(true); filterStuff(e) }}
+        >
+            {children}
+        </Appointments.Appointment>
+    );
     return (
         <Box className={classes.box}>
             <Scheduler
@@ -78,10 +104,37 @@ const Calendar = () => {
                 <Toolbar />
                 <DateNavigator />
                 <TodayButton />
-                <Appointments />
-                <AppointmentTooltip />
+                <Appointments appointmentComponent={Appointment} />
+                
                 <Resources data={resource} mainResourceName={"id"} />
             </Scheduler>
+            <Dialog open={open} aria-labelledby="form-dialog-title" width="100%" justifyContent="flex-start">
+                <DialogTitle id="form-dialog-title">Event Details</DialogTitle>
+                <DialogContent>
+                    <Box className={classes.Dialog}>
+                        
+                        {selectedAppointment?.map(holiday => (
+                            <>
+                            <Typography variant="h6">Employee : </Typography>
+                            <Typography>{holiday.owner.firstName ? holiday.owner.firstName : profile.firstName} {holiday.owner.lastName ? holiday.owner.lastName : profile.lastName}</Typography>
+                            <Typography variant="h6">Duration : </Typography>
+                            <Typography>from : {format(new Date(holiday.requestedHoliday.from), "MMM dd yyyy")} / to : {format(new Date(holiday.requestedHoliday.to), "MMM dd yyyy")}</Typography>
+                            <Typography variant="h6">Label :</Typography>
+                            <Typography>{holiday.requestedHoliday.label}</Typography>
+                            <Typography variant="h6">Description :</Typography>
+                            <Typography>{holiday.requestedHoliday.description}</Typography>
+                            <Typography variant="h6">State :</Typography>
+                            <Typography>{holiday.state ? "accepted" : (holiday.requestedHoliday.thereIsARequest ? "pending" : "rejected")}</Typography>
+                            </>
+                        ))}
+                    </Box>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpen(false)} color="primary">
+                        Close
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     )
 }
