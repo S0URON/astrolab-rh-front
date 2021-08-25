@@ -5,7 +5,7 @@ import { enGB } from 'date-fns/locale'
 // eslint-disable-next-line
 import { DateRangePicker, START_DATE, END_DATE } from 'react-nice-dates'
 import { useState, useContext } from "react"
-import { UserContext } from "../lib/UserContext"
+import { SocketContext } from "../lib/UserContext"
 import { useHistory } from "react-router-dom"
 import { format } from "date-fns";
 
@@ -39,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
 const Holiday = () => {
     const history = useHistory()
     // eslint-disable-next-line
-    const { profile } = useContext(UserContext)
+    const { socket } = useContext(SocketContext)
     const [label, setLabel] = useState();
     const [startDate, setStartDate] = useState()
     const [endDate, setEndDate] = useState()
@@ -47,9 +47,12 @@ const Holiday = () => {
     const [holidayErr, setHolidayErr] = useState({ msg: "", type: "" })
     const classes = useStyles();
 
+    
+
     const handleRequest = () => {
+        
         const makeRequest = async () => {
-            const res = await fetch(`http://localhost:5050/api/holidays`, {
+            const res = await fetch(`https://astro-rh-back.herokuapp.com/api/holidays`, {
                 method: "PATCH",
                 mode: 'cors',
                 headers: new Headers({
@@ -58,12 +61,16 @@ const Holiday = () => {
                 }),
                 body: JSON.stringify({ label: label, from: format(startDate, 'yyyy-MM-dd'), to: format(endDate, 'yyyy-MM-dd'), description : description })
             })
-            const data = await res.status
-            if (data !== 200)
+            const data = await res.json()
+            if (res.status !== 200)
                 console.log(data)
             else
-                history.go(0)
+                socket?.emit('requestHoliday', data);
+                //history.go(0)
+
+                
         }
+        
         if (label && startDate && endDate && description)
             makeRequest()
         else

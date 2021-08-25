@@ -50,23 +50,25 @@ const Calendar = () => {
 
     const filterStuff = (e) => {
         const appointment = e.target.innerHTML.split('-')
-        let selectedHolidays;
-        if (profile?.role === "admin")
-            selectedHolidays = holidays?.filter((holiday) => holiday.owner?.firstName + ' ' + holiday.owner?.lastName === appointment[1]);
-        else
-            selectedHolidays = [profile.holiday]
-        setSelectedAppointment(selectedHolidays)
-        console.log(selectedAppointment)
+        //if (profile?.role === "admin")
+        const selectedHolidays = holidays?.filter((holiday) => holiday.owner?.firstName + ' ' + holiday.owner?.lastName === appointment[1]);
+        //else
+            //selectedHolidays = [profile.holiday]
+        if(selectedHolidays.length > 0){
+            setSelectedAppointment(selectedHolidays)
+            setOpen(true)
+        }else
+            console.log("empty for some fkn reason")
     }
 
     let schedulerData;
     if (profile) {
-        if (profile.role !== "admin") {
+        /*if (profile.role !== "admin") {
             if (typeof (profile.holiday) === "object" ? (profile.holiday.state === true || (profile.holiday.state === false && profile.holiday.requestedHoliday.thereIsARequest)) : false)
                 schedulerData = [{ title: profile.holiday.requestedHoliday.label + '-' + profile.firstName + ' ' + profile.lastName, startDate: createDate(profile.holiday.requestedHoliday.from), endDate: createDate(profile.holiday.requestedHoliday.to), id: profile._id }];
         }
-        else
-            schedulerData = holidays ? holidays.filter(holiday => (holiday.state === true || (holiday.state === false && holiday.requestedHoliday.thereIsARequest))).map((holiday) => (
+        else*/ 
+        schedulerData = schedulerData = holidays ? holidays.filter(holiday => (holiday.state === true || (holiday.state === false && holiday.requestedHoliday.thereIsARequest))).map((holiday) => (
                 { title: holiday ? holiday.requestedHoliday.label + '-' + holiday.owner?.firstName + ' ' + holiday.owner?.lastName : "", startDate: createDate(holiday ? holiday.requestedHoliday.from : ""), endDate: createDate(holiday ? holiday.requestedHoliday.to : ""), id: holiday._id }
             )) : [{ title: "", startDate: "", endDate: "", id: "" }]
     }
@@ -84,7 +86,7 @@ const Calendar = () => {
     }) => (
         <Appointments.Appointment
             {...restProps}
-            onClick={(e) => { setOpen(true); filterStuff(e) }}
+            onClick={(e) => { filterStuff(e) }}
         >
             {children}
         </Appointments.Appointment>
@@ -108,15 +110,15 @@ const Calendar = () => {
                 
                 <Resources data={resource} mainResourceName={"id"} />
             </Scheduler>
-            <Dialog open={open} aria-labelledby="form-dialog-title" width="100%" justifyContent="flex-start">
+            <Dialog open={open} aria-labelledby="form-dialog-title" width="100%">
                 <DialogTitle id="form-dialog-title">Event Details</DialogTitle>
                 <DialogContent>
                     <Box className={classes.Dialog}>
                         
                         {selectedAppointment?.map(holiday => (
-                            <>
+                            <Box key={holiday._id}>
                             <Typography variant="h6">Employee : </Typography>
-                            <Typography>{holiday.owner.firstName ? holiday.owner.firstName : profile.firstName} {holiday.owner.lastName ? holiday.owner.lastName : profile.lastName}</Typography>
+                            <Typography>{holiday.owner?.firstName ? holiday.owner?.firstName : profile.firstName} {holiday.owner.lastName ? holiday.owner.lastName : profile.lastName}</Typography>
                             <Typography variant="h6">Duration : </Typography>
                             <Typography>from : {format(new Date(holiday.requestedHoliday.from), "MMM dd yyyy")} / to : {format(new Date(holiday.requestedHoliday.to), "MMM dd yyyy")}</Typography>
                             <Typography variant="h6">Label :</Typography>
@@ -125,7 +127,7 @@ const Calendar = () => {
                             <Typography>{holiday.requestedHoliday.description}</Typography>
                             <Typography variant="h6">State :</Typography>
                             <Typography>{holiday.state ? "accepted" : (holiday.requestedHoliday.thereIsARequest ? "pending" : "rejected")}</Typography>
-                            </>
+                            </Box>
                         ))}
                     </Box>
                 </DialogContent>

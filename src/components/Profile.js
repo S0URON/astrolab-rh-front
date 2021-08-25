@@ -1,4 +1,4 @@
-import { Box, Grid, Paper, Typography, makeStyles, Divider, Button, Dialog, DialogActions, DialogTitle, DialogContent, TextField, IconButton } from '@material-ui/core'
+import { Box, Grid, Paper, Typography, makeStyles, Divider, Button, Dialog, DialogActions, DialogTitle, DialogContent, TextField, IconButton} from '@material-ui/core'
 import { Capitalize } from '../lib/mylib';
 import { useState, useContext } from 'react';
 import EditRoundedIcon from '@material-ui/icons/EditRounded';
@@ -39,6 +39,7 @@ const Profile = () => {
     const [error, setError] = useState({msg : "", type : ""});
 
 
+
     const handlePwdClose = () => {
         setPasswordDialogOpen(false);
     }
@@ -63,7 +64,7 @@ const Profile = () => {
     }
 
     const handleProfileChange = async () => {
-        const res = await fetch(`http://localhost:5050/api/employee/me`, {
+        const res = await fetch(`https://astro-rh-back.herokuapp.com/api/employee/me`, {
             method: "PATCH",
             mode: 'cors',
             headers: new Headers({

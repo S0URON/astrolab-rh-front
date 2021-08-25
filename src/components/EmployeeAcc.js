@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import ProfileForm from './FormExample';
 import EditRoundedIcon from '@material-ui/icons/EditRounded';
-import { Paper, Typography, makeStyles, Divider, Button, Dialog, DialogActions, DialogTitle, DialogContent, IconButton } from '@material-ui/core'
+import { Paper, Typography, makeStyles, Divider, Button, Avatar,Dialog, DialogActions, DialogTitle, DialogContent, IconButton } from '@material-ui/core'
 import { useHistory } from 'react-router-dom';
 import { formValidator } from '../lib/errorHandler';
+
 const useStyles = makeStyles((theme) => ({
     root: {
         flexGrow: 1,
@@ -42,14 +43,6 @@ const useStyles = makeStyles((theme) => ({
             textDecoration: 'underline',
         },
     },
-    pic: {
-        flexBasis: '9%',
-        backgroundImage: `url(${'https://media.istockphoto.com/vectors/default-gray-placeholder-man-vector-id871752462?b=1&k=6&m=871752462&s=612x612&w=0&h=su9GconcV7Pr_uuQm1GDnPEFoqgGz0dliMHMfmJf_ro='})`,
-        backgroundRepeat: "no-repeat",
-        backgroundPosition: "center",
-        backgroundSize: "cover",
-        borderRadius: "50%"
-    },
     paper: {
         padding: theme.spacing(2),
         display: "flex",
@@ -58,6 +51,10 @@ const useStyles = makeStyles((theme) => ({
     },
     text: {
         margin: 'auto 0'
+    },
+    small : {
+        width: theme.spacing(6),
+        height: theme.spacing(6),
     }
 }));
 
@@ -75,7 +72,7 @@ const EmployeeAcc = ({ employee }) => {
     }
 
     const patchUser = async () =>{
-        const res = await fetch(`http://localhost:5050/api/employee`,{
+        const res = await fetch(`https://astro-rh-back.herokuapp.com/api/employee`,{
             method : "PATCH",
             mode : 'cors',
             headers :new Headers({
@@ -91,8 +88,7 @@ const EmployeeAcc = ({ employee }) => {
     return (
         <div>
             <Paper className={classes.paper} variant="outlined">
-                <div className={classes.pic} style={{backgroundImage: `url(${employee?.profileImg}`}}>
-                </div>
+                <Avatar alt="placeholder" src={employee?.profileImg}   className={classes.small}/>
                 <Typography className={classes.text}>
                     {employee.firstName + " " + employee.lastName}
                 </Typography>

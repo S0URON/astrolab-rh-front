@@ -1,8 +1,9 @@
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
-import { makeStyles, Box, Typography } from '@material-ui/core';
+import { makeStyles, Box, Typography, Link } from '@material-ui/core';
 import { Capitalize } from '../lib/mylib';
 import ImageUpload from './ImageUpload'
+import Uploadfile from './Uploadfile';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -30,13 +31,13 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export default function ProfileForm({ employee, profile, update, error }) {
+export default function ProfileForm({ employee, profile, update, error}) {
   const classes = useStyles();
   return (
     <>
       <Box className={classes.box}>
         <Box>
-          <ImageUpload updateImage={update} profile={profile} employee={employee}/>
+          <ImageUpload updateImage={update} profile={profile} employee={employee} />
         </Box>
         <Box margin="auto">
           <Typography className={classes.text}>{Capitalize(employee.firstName) + " " + Capitalize(employee.lastName)}</Typography>
@@ -106,7 +107,7 @@ export default function ProfileForm({ employee, profile, update, error }) {
             id={"birthdate-" + employee.id}
             type="date"
             defaultValue={employee.birthdate}
-            onChange={(e) => { update({ ...profile, birthdate : e.target.value }) }}
+            onChange={(e) => { update({ ...profile, birthdate: e.target.value }) }}
             label="birthdate"
             fullWidth
             error={error.type === "birthdate"}
@@ -147,7 +148,7 @@ export default function ProfileForm({ employee, profile, update, error }) {
           />
         </Grid>
         <Grid item xs={12} sm={6}>
-        <TextField
+          <TextField
             required
             type="date"
             id={"leaving_date-" + employee.id}
@@ -160,7 +161,7 @@ export default function ProfileForm({ employee, profile, update, error }) {
           />
         </Grid>
         <Grid item xs={12} sm={6}>
-        <TextField
+          <TextField
             required
             type="text"
             id={"post-" + employee.id}
@@ -174,7 +175,7 @@ export default function ProfileForm({ employee, profile, update, error }) {
           />
         </Grid>
         <Grid item xs={12} sm={6}>
-        <TextField
+          <TextField
             required
             id={"CIN-" + employee.id}
             label="CIN"
@@ -185,6 +186,13 @@ export default function ProfileForm({ employee, profile, update, error }) {
             onChange={(e) => { update({ ...profile, cin: e.target.value }) }}
             fullWidth
           />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <Link  target="_blank" href={employee.contract} style={{ cursor: "pointer", margin : "5px" }} color="inherit">view contract</Link>
+          <Link  target="_blank" href={employee.cinImg} style={{ cursor: "pointer",margin : "5px" }} color="inherit">view cin</Link>
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <Uploadfile update={update} profile={profile} employee={employee} />
         </Grid>
       </Grid>
     </>

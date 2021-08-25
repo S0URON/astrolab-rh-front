@@ -11,7 +11,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import { Link, useHistory } from 'react-router-dom';
 import { UserContext } from '../lib/UserContext'
-import errorHandler from "../lib/errorHandler"
+import {errorHandler} from "../lib/errorHandler"
 import validator from 'validator';
 
 
@@ -53,7 +53,7 @@ export default function SignIn() {
   const [loginErr, setloginErr] = useState({ msg: "", type: "" })
 
   const login = async () => {
-    const url = 'http://localhost:5050/api/login'
+    const url = 'https://astro-rh-back.herokuapp.com/api/login'
     const response = await fetch(url, {
       method: 'POST',
       cache: 'no-cache',

@@ -46,7 +46,9 @@ body {
   max-height: 35px;
 }
 
-
+[class^="HorizontalAppointment-title-"]{
+    padding: 5px;
+}
 
 
 .nice-dates-navigation {

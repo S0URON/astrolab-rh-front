@@ -1,8 +1,7 @@
 import { alpha, makeStyles } from '@material-ui/core/styles';
 import { Drawer, ListItem, List, Divider, ListItemText, Avatar, IconButton, Typography, Toolbar, AppBar, Badge, ListItemIcon } from '@material-ui/core';
-import { BrowserRouter as Router, Link as RouterLink, useHistory } from 'react-router-dom';
+import { BrowserRouter as Router, Link as RouterLink, useHistory, Redirect } from 'react-router-dom';
 import MenuIcon from '@material-ui/icons/Menu';
-import AccountCircle from '@material-ui/icons/AccountCircle';
 import AddCircleRoundedIcon from '@material-ui/icons/AddCircleRounded';
 import NotificationsRoundedIcon from '@material-ui/icons/NotificationsRounded';
 import EventAvailableRoundedIcon from '@material-ui/icons/EventAvailableRounded';
@@ -14,6 +13,7 @@ import Notifications from './Notifications';
 import EditEmployee from './EditEmployee';
 import Calendar from './Calendar';
 import Holiday from './Holiday';
+import News from './News'
 import PrivateRoute from './PrivateRoute';
 import AdminRoute from './AdminRoute'
 import { IsAdmin } from '../lib/mylib';
@@ -115,14 +115,14 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-export default function Nav({ setTheme, theme }) {
+export default function Home({ setTheme, theme, requestedHolidays }) {
   const history = useHistory()
   const classes = useStyles();
   const { profile } = useContext(UserContext)
   const { holidays } = useContext(HolidayContext)
 
   const logout = async () => {
-    const url = 'http://localhost:5050/api/logout'
+    const url = 'https://astro-rh-back.herokuapp.com/api/logout'
     const res = await fetch(url, {
       method: 'POST',
       cache: 'no-cache',
@@ -135,14 +135,27 @@ export default function Nav({ setTheme, theme }) {
     localStorage.removeItem("token")
     history.push("/login")
   }
+
+  const changetheme = () => {
+    //theme === 'light' ? setTheme("dark") : setTheme("light")
+    switch(theme){
+      case 'light':
+        setTheme("dark")
+        localStorage.setItem("theme", "dark")
+        break;
+      default:
+        setTheme('light')
+        localStorage.setItem("theme", "light")
+        break;
+    }
+  }
   return (
     <div className={classes.grow}>
-      <Router>
         <AppBar position="sticky" className={classes.appbar}>
           <Toolbar>
             <div className={classes.grow} />
             <div className={classes.sectionDesktop}>
-              <IconButton color="inherit" onClick={() => theme === 'light' ? setTheme("dark") : setTheme("light")}>
+              <IconButton color="inherit" onClick={() => changetheme()}>
                 <Brightness4RoundedIcon />
               </IconButton>
               <IconButton color="inherit" component={RouterLink} to='/home/profile'>
@@ -167,7 +180,7 @@ export default function Nav({ setTheme, theme }) {
           </div>
           <Divider />
           <List>
-            {[{ text: 'notifications', link: '/home/notifications', icon: (<Badge badgeContent={holidays ? holidays.filter((holiday) => holiday.requestedHoliday.thereIsARequest === true).length : null} color="secondary" ><NotificationsRoundedIcon /></Badge>) },
+            {[{ text: 'notifications', link: '/home/notifications', icon: (<Badge badgeContent={requestedHolidays?.filter((holiday) => holiday.requestedHoliday.thereIsARequest === true).length === 0 ? holidays?.filter((holiday) => holiday.requestedHoliday.thereIsARequest === true).length : requestedHolidays?.filter((holiday) => holiday.requestedHoliday.thereIsARequest === true).length} color="secondary" ><NotificationsRoundedIcon /></Badge>) },
             { text: 'request a holiday', link: '/home/holidays', icon: (<QuestionAnswerRoundedIcon />) },
             { text: 'Calendar', link: '/home/calendar', icon: (<EventAvailableRoundedIcon />) }].map((el) => (
               <ListItem button key={el.text} component={RouterLink} to={el.link}>
@@ -182,12 +195,12 @@ export default function Nav({ setTheme, theme }) {
               </ListItem> : <></>}
           </List>
         </Drawer>
-        <PrivateRoute path="/home/profile" component={Profile} />
+        <News/>
+        <PrivateRoute path="/home/profile" component={Profile} exact/>
         <AdminRoute path="/home/employees" component={EditEmployee} />
         <PrivateRoute path="/home/holidays" component={Holiday} />
-        <PrivateRoute path="/home/notifications" component={Notifications} />
+        <PrivateRoute path="/home/notifications" component={Notifications} exact requestedHolidays={requestedHolidays}/>
         <PrivateRoute path="/home/calendar" component={Calendar} />
-      </Router>
     </div>
   );
 }

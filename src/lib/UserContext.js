@@ -1,9 +1,11 @@
 import { createContext, useState, useEffect, useContext } from "react";
 import { useHistory } from "react-router-dom";
+import { io } from 'socket.io-client'
+
 
 export const UserContext = createContext(null)
 export const HolidayContext = createContext(null)
-export const ErrorContext = createContext(null)
+export const SocketContext = createContext(null)
 
 export const UserProvider = (props) => {
     const [profile, setProfile] = useState(null)
@@ -21,7 +23,7 @@ export const UserProvider = (props) => {
     }, [history])
 
     const fetchProfile = async (token) => {
-        const res = await fetch("http://localhost:5050/api/employee/me", {
+        const res = await fetch("https://astro-rh-back.herokuapp.com/api/employee/me", {
             method: 'GET',
             mode: "cors",
             headers: new Headers({
@@ -37,7 +39,7 @@ export const UserProvider = (props) => {
 
 export const HolidayProvider = (props) => {
     const [holidays, setHolidays] = useState(null);
-    const { profile }= useContext(UserContext)
+    const { profile } = useContext(UserContext)
     useEffect(() => {
         const getHolidays = async () => {
             const fetchedHolidays = await fetchHolidays()
@@ -46,25 +48,25 @@ export const HolidayProvider = (props) => {
             else
                 alert('get holidays failed')
         }
-        const getMyHoliday = async () => {
+        /*const getMyHoliday = async () => {
             const fetchedHoliday = await fetchHoliday()
             if (fetchedHoliday)
                 setHolidays([{...fetchedHoliday}])
             else
                 alert('get my holiday failed')
-        }
+        }*/
         if (profile) {
-            if (profile.role)
+            //if (profile.role)
                 getHolidays()
-            else {
-                getMyHoliday()
-            }
+            //else {
+               // getMyHoliday()
+            //}
         }
         // eslint-disable-next-line
     }, [profile])
 
     const fetchHolidays = async () => {
-        const res = await fetch("http://localhost:5050/api/holidays", {
+        const res = await fetch("https://astro-rh-back.herokuapp.com/api/holidays", {
             method: 'GET',
             mode: "cors",
             headers: new Headers({
@@ -72,12 +74,14 @@ export const HolidayProvider = (props) => {
             }),
         })
         const data = await res.json()
-        if (res.status === 200)
+        if (res.status === 200){
+            await data.holiday
             return data
+        }
         else
             return null
     }
-    const fetchHoliday = async () => {
+    /*const fetchHoliday = async () => {
         const res = await fetch("http://localhost:5050/api/holidays/me", {
             method: 'GET',
             mode: "cors",
@@ -90,14 +94,24 @@ export const HolidayProvider = (props) => {
             return data
         else
             return null
-    }
+    }*/
 
     return <HolidayContext.Provider value={{ holidays, setHolidays }} {...props} />
 }
 
-export const ErrorProvider = (props) => {
+export const SocketProvider = (props) => {
+    const [loggedIn, setLoggedIn] = useState(localStorage.getItem("token") ? true : false)
+    const [socket, setSocket] = useState(null) 
 
-    const [backendErr, setBackendErr] = useState(null) 
-
-    return <ErrorContext.Provider value={{backendErr, setBackendErr}} {...props}/>
+    useEffect(() => {
+        if (loggedIn) {
+          const socketConnection = io("https://astro-rh-back.herokuapp.com")
+          socketConnection.on("connected", (msg) => {
+            console.log(msg)
+            setSocket(socketConnection)
+          })
+        }
+    }, [loggedIn])
+      
+    return <SocketContext.Provider value={{socket, setSocket}} {...props}/>
 }

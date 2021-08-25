@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Box, Grid, Dialog, DialogActions, DialogTitle, DialogContent, TextField, makeStyles, Button } from '@material-ui/core'
 import EmployeeAcc from './EmployeeAcc';
 import { formValidator } from '../lib/errorHandler';
+import { useHistory } from 'react-router-dom';
 
 const dummy = [
     {
@@ -65,6 +66,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const EditEmployee = () => {
+    const history = useHistory
     const [dialogOpen, setDialogOpen] = useState(false);
     const [employees, setEmployees] = useState(dummy);
     const [error, setError] = useState({ msg: '', type: '' })
@@ -88,7 +90,7 @@ const EditEmployee = () => {
 
     }, [])
     const fetchEmployees = async (token) => {
-        const res = await fetch("http://localhost:5050/api/employee", {
+        const res = await fetch("https://astro-rh-back.herokuapp.com/api/employee", {
             method: 'GET',
             mode: "cors",
             headers: new Headers({
@@ -100,7 +102,7 @@ const EditEmployee = () => {
     }
 
     const addEmployee = async () => {
-        const res = await fetch("http://localhost:5050/api/addemployee", {
+        const res = await fetch("https://astro-rh-back.herokuapp.com/api/addemployee", {
             method: "POST",
             mode: "cors",
             headers: {
@@ -122,6 +124,7 @@ const EditEmployee = () => {
         setEmployees([...employees, newEmployee]);
         addEmployee();
         handleCloseDialog();
+        history.go(0)
     }
 
     const classes = useStyles();
