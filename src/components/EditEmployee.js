@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Box, Grid, Dialog, DialogActions, DialogTitle, DialogContent, TextField, makeStyles, Button } from '@material-ui/core'
+import { Box, Grid, Dialog, DialogActions, DialogTitle, DialogContent, CircularProgress, TextField, makeStyles, Button } from '@material-ui/core'
 import EmployeeAcc from './EmployeeAcc';
 import { formValidator } from '../lib/errorHandler';
 import { useHistory } from 'react-router-dom';
@@ -66,7 +66,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const EditEmployee = () => {
-    const history = useHistory
+    const history = useHistory()
     const [dialogOpen, setDialogOpen] = useState(false);
     const [employees, setEmployees] = useState(dummy);
     const [error, setError] = useState({ msg: '', type: '' })
@@ -80,6 +80,7 @@ const EditEmployee = () => {
         hiring_date: "",
         password: ""
     });
+    const [loading, setLoading] = useState(false)
 
     useEffect(() => {
         const getEmployees = async () => {
@@ -87,9 +88,11 @@ const EditEmployee = () => {
             setEmployees(employeeList)
         }
         getEmployees();
+        
 
     }, [])
     const fetchEmployees = async (token) => {
+        setLoading(true)
         const res = await fetch("https://astro-rh-back.herokuapp.com/api/employee", {
             method: 'GET',
             mode: "cors",
@@ -98,6 +101,7 @@ const EditEmployee = () => {
             }),
         })
         const data = await res.json()
+        setLoading(false)
         return data
     }
 
@@ -111,6 +115,7 @@ const EditEmployee = () => {
             body: JSON.stringify(newEmployee)
         })
         const data = await res.json()
+        setEmployees([...employees, newEmployee]);
         console.log(data)
     }
 
@@ -121,7 +126,6 @@ const EditEmployee = () => {
         setDialogOpen(true);
     }
     const handleAddEmployee = () => {
-        setEmployees([...employees, newEmployee]);
         addEmployee();
         handleCloseDialog();
         history.go(0)
@@ -132,7 +136,9 @@ const EditEmployee = () => {
         <Box margin="5% auto" className={classes.root}>
             <Grid container direction="column" spacing={3}>
                 {
-                    employees.map((employee, index) => (
+                    loading ?
+                        <CircularProgress />
+                    : employees.map((employee, index) => (
                         <Grid item xs margin="auto" key={employee._id}>
                             <EmployeeAcc employee={employee} />
                         </Grid>
