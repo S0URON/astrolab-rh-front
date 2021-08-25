@@ -37,8 +37,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Holiday = () => {
-    const history = useHistory()
     // eslint-disable-next-line
+    const history = useHistory()
     const { socket } = useContext(SocketContext)
     const [label, setLabel] = useState();
     const [startDate, setStartDate] = useState()

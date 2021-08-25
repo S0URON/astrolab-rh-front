@@ -70,7 +70,7 @@ export default function SignIn() {
     if (data.user) {
       setProfile(data.user);
       localStorage.setItem('token', data.token);
-      history.push('/home');
+      history.push('/home/news');
     } else {
       setloginErr(errorHandler(data.error))
     }

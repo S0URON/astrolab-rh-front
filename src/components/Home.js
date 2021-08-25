@@ -1,6 +1,6 @@
 import { alpha, makeStyles } from '@material-ui/core/styles';
 import { Drawer, ListItem, List, Divider, ListItemText, Avatar, IconButton, Typography, Toolbar, AppBar, Badge, ListItemIcon } from '@material-ui/core';
-import { BrowserRouter as Router, Link as RouterLink, useHistory, Redirect } from 'react-router-dom';
+import { Link as RouterLink, useHistory } from 'react-router-dom';
 import MenuIcon from '@material-ui/icons/Menu';
 import AddCircleRoundedIcon from '@material-ui/icons/AddCircleRounded';
 import NotificationsRoundedIcon from '@material-ui/icons/NotificationsRounded';
@@ -8,6 +8,7 @@ import EventAvailableRoundedIcon from '@material-ui/icons/EventAvailableRounded'
 import QuestionAnswerRoundedIcon from '@material-ui/icons/QuestionAnswerRounded';
 import Brightness4RoundedIcon from '@material-ui/icons/Brightness4Rounded';
 import ExitToAppRoundedIcon from '@material-ui/icons/ExitToAppRounded';
+import AnnouncementRoundedIcon from '@material-ui/icons/AnnouncementRounded';
 import Profile from './Profile';
 import Notifications from './Notifications';
 import EditEmployee from './EditEmployee';
@@ -108,7 +109,7 @@ const useStyles = makeStyles((theme) => ({
     width: `calc(100% - ${drawerWidth}px)`,
     marginLeft: drawerWidth,
   },
-  small : {
+  small: {
     width: theme.spacing(4),
     height: theme.spacing(4),
   }
@@ -138,7 +139,7 @@ export default function Home({ setTheme, theme, requestedHolidays }) {
 
   const changetheme = () => {
     //theme === 'light' ? setTheme("dark") : setTheme("light")
-    switch(theme){
+    switch (theme) {
       case 'light':
         setTheme("dark")
         localStorage.setItem("theme", "dark")
@@ -151,56 +152,57 @@ export default function Home({ setTheme, theme, requestedHolidays }) {
   }
   return (
     <div className={classes.grow}>
-        <AppBar position="sticky" className={classes.appbar}>
-          <Toolbar>
-            <div className={classes.grow} />
-            <div className={classes.sectionDesktop}>
-              <IconButton color="inherit" onClick={() => changetheme()}>
-                <Brightness4RoundedIcon />
-              </IconButton>
-              <IconButton color="inherit" component={RouterLink} to='/home/profile'>
-                <Avatar alt="placeholder" src={profile?.profileImg}   className={classes.small}/>
-                <Typography style={{ margin: "0 5px" }}>{profile?.firstName} {profile?.lastName}</Typography>
-              </IconButton>
-              <IconButton color="inherit" onClick={logout}>
-                <ExitToAppRoundedIcon />
-                <Typography>Logout</Typography>
-              </IconButton>
-            </div>
-          </Toolbar>
-        </AppBar>
-        <Drawer className={classes.drawer} variant="persistent" anchor='left' open={true} classes={{
-          paper: classes.drawerPaper,
-        }}>
-          <div className={classes.drawerHeader}>
-            <IconButton color="inherit"><MenuIcon /></IconButton>
-            <Typography className={classes.title} variant="h6" noWrap>
-              Menu
-            </Typography>
+      <AppBar position="sticky" className={classes.appbar}>
+        <Toolbar>
+          <div className={classes.grow} />
+          <div className={classes.sectionDesktop}>
+            <IconButton color="inherit" onClick={() => changetheme()}>
+              <Brightness4RoundedIcon />
+            </IconButton>
+            <IconButton color="inherit" component={RouterLink} to='/home/profile'>
+              <Avatar alt="placeholder" src={profile?.profileImg} className={classes.small} />
+              <Typography style={{ margin: "0 5px" }}>{profile?.firstName} {profile?.lastName}</Typography>
+            </IconButton>
+            <IconButton color="inherit" onClick={logout}>
+              <ExitToAppRoundedIcon />
+              <Typography>Logout</Typography>
+            </IconButton>
           </div>
-          <Divider />
-          <List>
-            {[{ text: 'notifications', link: '/home/notifications', icon: (<Badge badgeContent={requestedHolidays?.filter((holiday) => holiday.requestedHoliday.thereIsARequest === true).length === 0 ? holidays?.filter((holiday) => holiday.requestedHoliday.thereIsARequest === true).length : requestedHolidays?.filter((holiday) => holiday.requestedHoliday.thereIsARequest === true).length} color="secondary" ><NotificationsRoundedIcon /></Badge>) },
-            { text: 'request a holiday', link: '/home/holidays', icon: (<QuestionAnswerRoundedIcon />) },
-            { text: 'Calendar', link: '/home/calendar', icon: (<EventAvailableRoundedIcon />) }].map((el) => (
-              <ListItem button key={el.text} component={RouterLink} to={el.link}>
-                <ListItemIcon>{el.icon}</ListItemIcon>
-                <ListItemText primary={el.text} />
-              </ListItem>
-            ))}
-            {IsAdmin(profile ? profile : { role: "other" }) ?
-              <ListItem button key={'Add/Edit Employees'} component={RouterLink} to={'/home/employees'}>
-                <ListItemIcon><AddCircleRoundedIcon /></ListItemIcon>
-                <ListItemText primary={'Add/Edit Employees'} />
-              </ListItem> : <></>}
-          </List>
-        </Drawer>
-        <News/>
-        <PrivateRoute path="/home/profile" component={Profile} exact/>
-        <AdminRoute path="/home/employees" component={EditEmployee} />
-        <PrivateRoute path="/home/holidays" component={Holiday} />
-        <PrivateRoute path="/home/notifications" component={Notifications} exact requestedHolidays={requestedHolidays}/>
-        <PrivateRoute path="/home/calendar" component={Calendar} />
+        </Toolbar>
+      </AppBar>
+      <Drawer className={classes.drawer} variant="persistent" anchor='left' open={true} classes={{
+        paper: classes.drawerPaper,
+      }}>
+        <div className={classes.drawerHeader}>
+          <IconButton color="inherit"><MenuIcon /></IconButton>
+          <Typography className={classes.title} variant="h6" noWrap>
+            Menu
+          </Typography>
+        </div>
+        <Divider />
+        <List>
+          {[{ text: 'news', link: '/home/news', icon: (<AnnouncementRoundedIcon />) },
+          { text: 'notifications', link: '/home/notifications', icon: (<Badge badgeContent={requestedHolidays?.filter((holiday) => holiday.requestedHoliday.thereIsARequest === true).length === 0 ? holidays?.filter((holiday) => holiday.requestedHoliday.thereIsARequest === true).length : requestedHolidays?.filter((holiday) => holiday.requestedHoliday.thereIsARequest === true).length} color="secondary" ><NotificationsRoundedIcon /></Badge>) },
+          { text: 'request a holiday', link: '/home/holidays', icon: (<QuestionAnswerRoundedIcon />) },
+          { text: 'Calendar', link: '/home/calendar', icon: (<EventAvailableRoundedIcon />) }].map((el) => (
+            <ListItem button key={el.text} component={RouterLink} to={el.link}>
+              <ListItemIcon>{el.icon}</ListItemIcon>
+              <ListItemText primary={el.text} />
+            </ListItem>
+          ))}
+          {IsAdmin(profile ? profile : { role: "other" }) ?
+            <ListItem button key={'Add/Edit Employees'} component={RouterLink} to={'/home/employees'}>
+              <ListItemIcon><AddCircleRoundedIcon /></ListItemIcon>
+              <ListItemText primary={'Add/Edit Employees'} />
+            </ListItem> : <></>}
+        </List>
+      </Drawer>
+      <PrivateRoute path="/home/news" component={News} exact />
+      <PrivateRoute path="/home/profile" component={Profile} exact />
+      <AdminRoute path="/home/employees" component={EditEmployee} />
+      <PrivateRoute path="/home/holidays" component={Holiday} />
+      <PrivateRoute path="/home/notifications" component={Notifications} exact requestedHolidays={requestedHolidays} />
+      <PrivateRoute path="/home/calendar" component={Calendar} />
     </div>
   );
 }

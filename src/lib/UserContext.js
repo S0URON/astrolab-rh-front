@@ -100,6 +100,7 @@ export const HolidayProvider = (props) => {
 }
 
 export const SocketProvider = (props) => {
+    // eslint-disable-next-line
     const [loggedIn, setLoggedIn] = useState(localStorage.getItem("token") ? true : false)
     const [socket, setSocket] = useState(null) 
 
