@@ -182,7 +182,7 @@ export default function Home({ setTheme, theme, requestedHolidays }) {
         <Divider />
         <List>
           {[{ text: 'news', link: '/home/news', icon: (<AnnouncementRoundedIcon />) },
-          { text: 'notifications', link: '/home/notifications', icon: (<Badge badgeContent={requestedHolidays?.filter((holiday) => holiday.requestedHoliday.thereIsARequest === true).length === 0 ? holidays?.filter((holiday) => holiday.requestedHoliday.thereIsARequest === true).length : requestedHolidays?.filter((holiday) => holiday.requestedHoliday.thereIsARequest === true).length} color="secondary" ><NotificationsRoundedIcon /></Badge>) },
+          { text: 'notifications', link: '/home/notifications', icon: (<Badge badgeContent={IsAdmin(profile ? profile : { role: "other" }) ? (requestedHolidays?.filter((holiday) => holiday.requestedHoliday.thereIsARequest === true).length === 0 ? holidays?.filter((holiday) => holiday.requestedHoliday.thereIsARequest === true).length : requestedHolidays?.filter((holiday) => holiday.requestedHoliday.thereIsARequest === true).length) : 0} color="secondary" ><NotificationsRoundedIcon /></Badge>) },
           { text: 'request a holiday', link: '/home/holidays', icon: (<QuestionAnswerRoundedIcon />) },
           { text: 'Calendar', link: '/home/calendar', icon: (<EventAvailableRoundedIcon />) }].map((el) => (
             <ListItem button key={el.text} component={RouterLink} to={el.link}>
