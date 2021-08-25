@@ -30,6 +30,10 @@ const useStyles = makeStyles((theme) => ({
     },
     Dialog: {
         margin: 30
+    },
+    tafcha : {
+        maxHeight : 35,
+        padding : 5
     }
 }));
 
@@ -87,6 +91,7 @@ const Calendar = () => {
         <Appointments.Appointment
             {...restProps}
             onClick={(e) => { filterStuff(e) }}
+            className={classes.tafcha}
         >
             {children}
         </Appointments.Appointment>

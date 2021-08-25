@@ -38,17 +38,21 @@ body {
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
 }
 
-.MuiTableRow-root [class*="Cell-cell-"]{
+/*.MuiTableRow-root [class*="Cell-cell-"]{
   height: 67px;
 }
-
+*/
+.MuiTableRow-root td{
+  height: 67px;
+}
+/*
 [class^="makeStyles-appointment-"] {
   max-height: 35px;
 }
 
 [class^="HorizontalAppointment-title-"]{
     padding: 5px;
-}
+}*/
 
 
 .nice-dates-navigation {

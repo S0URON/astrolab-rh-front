@@ -29,6 +29,7 @@ const AppContainer = () => {
             <ThemeProvider theme={Theme}>
                 <CssBaseline />
                 <Router>
+                <Redirect to="/home/news"/>
                     <UserProvider >
                         <HolidayProvider>
                             <PrivateRoute path='/home' component={Home} setTheme={setTheme} theme={theme} requestedHolidays={requestedHolidays}/>
