@@ -1,13 +1,15 @@
 // eslint-disable-next-line
-import { Box, makeStyles, TextField, Grid, Typography, Button, Divider, TextareaAutosize } from "@material-ui/core"
+import { Box, makeStyles, TextField, Grid, Typography, Button, Divider,Snackbar } from "@material-ui/core"
 // eslint-disable-next-line
 import { enGB } from 'date-fns/locale'
 // eslint-disable-next-line
 import { DateRangePicker, START_DATE, END_DATE } from 'react-nice-dates'
 import { useState, useContext } from "react"
-import { SocketContext } from "../lib/UserContext"
+import { SocketContext, UserContext } from "../lib/UserContext"
 import { useHistory } from "react-router-dom"
 import { format } from "date-fns";
+import MuiAlert from '@material-ui/lab/Alert';
+
 
 
 const useStyles = makeStyles((theme) => ({
@@ -39,6 +41,7 @@ const useStyles = makeStyles((theme) => ({
 const Holiday = () => {
     // eslint-disable-next-line
     const history = useHistory()
+    const { profile } = useContext(UserContext)
     const { socket } = useContext(SocketContext)
     const [label, setLabel] = useState();
     const [startDate, setStartDate] = useState()
@@ -46,6 +49,8 @@ const Holiday = () => {
     const [description, setDescription] = useState()
     const [holidayErr, setHolidayErr] = useState({ msg: "", type: "" })
     const classes = useStyles();
+    const [snackbar, setSnackbar] = useState(false);
+    const [err, setErr] = useState({ status: false, msg: "" })
 
     
 
@@ -63,15 +68,15 @@ const Holiday = () => {
             })
             const data = await res.json()
             if (res.status !== 200)
-                console.log(data)
-            else
+                //console.log(data)
+                setErr({ status: true, msg: `there was an error requesting your holiday` })
+            else{
                 socket?.emit('requestHoliday', data);
-                //history.go(0)
-
-                
+                setSnackbar(true)
+            }
         }
         
-        if (label && startDate && endDate && description)
+        if (label && startDate && endDate && description )
             makeRequest()
         else
             if (!label || label === "")
@@ -139,6 +144,11 @@ const Holiday = () => {
                 <Divider width="80%" variant="middle" className={classes.divider} />
                 <Button variant="outlined" color='primary' onClick={handleRequest} className={classes.button}>request</Button>
             </Box>
+            <Snackbar open={snackbar} autoHideDuration={2000} onClose={() => {setSnackbar(false) ; history.go(0)}}>
+                <MuiAlert severity={err.status ? 'error' : 'success'}>
+                    {err.status ? err.msg : "request sent ! check your notifications"}
+                </MuiAlert>
+            </Snackbar>
         </>
     )
 }

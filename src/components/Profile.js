@@ -1,11 +1,13 @@
-import { Box, Grid, Paper, Typography, makeStyles, Divider, Button, Dialog, DialogActions, DialogTitle, DialogContent, TextField, IconButton} from '@material-ui/core'
+import { Box, Grid, Paper, Typography, makeStyles, Divider, Button, Dialog, DialogActions, DialogTitle, DialogContent, TextField, IconButton, Snackbar} from '@material-ui/core'
 import { Capitalize } from '../lib/mylib';
 import { useState, useContext } from 'react';
 import EditRoundedIcon from '@material-ui/icons/EditRounded';
 import { UserContext } from '../lib/UserContext';
-import ProfileForm from './FormExample';
+import ProfileForm from './ProfileForm';
 import { useHistory } from 'react-router-dom'
-import errorHandler, { formValidator } from '../lib/errorHandler';
+import { formValidator, errorHandler } from '../lib/errorHandler';
+import MuiAlert from '@material-ui/lab/Alert';
+
 
 
 const useStyles = makeStyles((theme) => ({
@@ -37,7 +39,8 @@ const Profile = () => {
     const [changePassErr, setChangePassErr] = useState({ msg: "", type: "" })
     const [dialogOpen, setDialogOpen] = useState(false);
     const [error, setError] = useState({msg : "", type : ""});
-
+    const [snackbar, setSnackbar] = useState(false);
+    const [err, setErr] = useState({ status: false, msg: "" })
 
 
     const handlePwdClose = () => {
@@ -47,7 +50,7 @@ const Profile = () => {
         setPasswordDialogOpen(true);
     }
     const handlePwdChange = async () => {
-        const res = await fetch(`http://localhost:5050/api/employee/cp`, {
+        const res = await fetch(`https://astro-rh-back.herokuapp.com/api/employee/cp`, {
             method: "PATCH",
             mode: 'cors',
             headers: new Headers({
@@ -57,10 +60,16 @@ const Profile = () => {
             body: JSON.stringify(pass)
         })
         const data = await res.json()
-        if (res.status !== 200)
+        if (res.status !== 200){
             setChangePassErr(errorHandler(data.error))
-        else
-            history.go(0)
+            setErr({status : true, msg : data.error})
+            setSnackbar(true)
+        }
+        else{
+            setErr({status : false, msg : "password changed !"})
+            setSnackbar(true)
+        }
+            
     }
 
     const handleProfileChange = async () => {
@@ -75,8 +84,14 @@ const Profile = () => {
         })
 
         const data = await res.json()
-        console.log(data)
-        history.go(0)
+        if(res.status !== 200){
+            setErr({status : true, msg : "error saving profile"})
+            setSnackbar(true)
+        }else{
+            setErr({status : false, msg : "profile saved !"})
+            setSnackbar(true)
+            history.go(0)
+        }
     }
     
     const passValidator = () => {
@@ -142,6 +157,7 @@ const Profile = () => {
                             <Dialog open={passwordDialogOpen} onClose={handlePwdClose} aria-labelledby="form-dialog-title" width="50%">
                                 <DialogTitle id="form-dialog-title">Change Password</DialogTitle>
                                 <DialogContent>
+                                    <form>
                                     <TextField
                                         margin="dense"
                                         name="oldPassword"
@@ -175,6 +191,25 @@ const Profile = () => {
                                         onChange={(e) => {setPass({ ...pass, comfirmNewPassword: e.target.value }) ; setChangePassErr({ msg: "", type: "" })}}
                                         fullWidth
                                     />
+                                    </form>
+                                    <Typography>
+                                        {pass.newPassword.length >= 8 ? "" : "password must be 8 characters long"}
+                                    </Typography>
+                                    <Typography>
+                                        {/[a-z]/.test(pass.newPassword) ? "" : "password must containt at least 1 lower case character"}
+                                    </Typography>
+                                    <Typography>
+                                        {/[A-Z]/.test(pass.newPassword) ? "" : "password must containt at least 1 upper case character"}
+                                    </Typography>
+                                    <Typography>
+                                        {/[@?!$*+-]/.test(pass.newPassword) ? "" : "password must containt at least 1 symbol"}
+                                    </Typography>
+                                    <Typography>
+                                        {/[0-9]/.test(pass.newPassword) ? "" : "password must containt at least 1 number"}
+                                    </Typography>
+                                    <Typography>
+                                        {pass.newPassword === pass.comfirmNewPassword ? "" : "new pass must match comfirm pass"}
+                                    </Typography>
                                 </DialogContent>
                                 <DialogActions>
                                     <Button onClick={handlePwdClose} color="primary">
@@ -189,6 +224,11 @@ const Profile = () => {
                     </Grid>
                 </Grid>
             </Box>
+            <Snackbar open={snackbar} autoHideDuration={2000} onClose={() => {err.status === false ? (() => {setPasswordDialogOpen(false); setSnackbar(false)})() : setSnackbar(false); }}>
+                <MuiAlert severity={err.status === true ? 'error' : 'success'}>
+                        {err.status === true ? err.msg : err.msg}
+                </MuiAlert>
+            </Snackbar>
         </Box>
     )
 }

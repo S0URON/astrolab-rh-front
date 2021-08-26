@@ -12,14 +12,14 @@ const useStyles = makeStyles((theme) => ({
         display: "flex",
         justifyContent: "center",
         alignItems: 'center',
-        width: "50%"
+        width: "60%",
+        margin :'5% 25%'
     },
     paper: {
         padding: theme.spacing(2),
         display: "flex",
         justifyContent: "space-between",
-        margin: "5px"
-
+        margin: "5px",
     },
     button: {
         margin: "1%"
@@ -115,22 +115,22 @@ const Notifications = ({requestedHolidays}) => {
                     ))
                 }
                 <Divider style={{margin : 20}}/>
-                {
+                <Paper variant="outlined">{
                     IsAdmin(profile ? profile : { role: "other" }) ? (holidays ? holidays.map(holiday => (
-                        <Paper className={classes.paper} elevation={3} key={holiday._id}>
+                        <Box className={classes.paper} elevation={3} key={holiday._id}>
                             <Typography className={classes.heading}>{holiday.owner && typeof (holiday.owner) === "object" ? '(' + holiday.owner.firstName + " " + holiday.owner.lastName + ') has requested a holiday' : "you have requested a holiday"}</Typography>
                             <Typography>{holiday.requestedHoliday.from + "/" + holiday.requestedHoliday.to}</Typography>
                             <Typography className={classes.heading}>{holiday.state ? "accepted" : (holiday.requestedHoliday.thereIsARequest ? "pending" : `rejected, reason: ${holiday.requestedHoliday.reason}`)}</Typography>
-                        </Paper>
+                        </Box>
                     )) : <></>) :  holidays ? holidays.filter(holiday => holiday.owner?._id === profile?._id).map(holiday => (
                         holiday.requestedHoliday.thereIsARequest || holiday.requestedHoliday.reason ?
-                        <Paper className={classes.paper} elevation={3} key={holiday._id}>
+                        <Box className={classes.paper} elevation={3} key={holiday._id}>
                             <Typography className={classes.heading}>{"you have requested a holiday"}</Typography>
                             <Typography>{holiday.requestedHoliday.from + "/" + holiday.requestedHoliday.to}</Typography>
                             <Typography className={classes.heading}>{holiday.state ? "accepted" : (holiday.requestedHoliday.thereIsARequest ? "pending" : `rejected, reason: ${holiday.requestedHoliday.reason}`)}</Typography>
-                        </Paper>
+                        </Box>
                     : <Typography variant="h6">you have no notifications</Typography> )) : <></>
-                }
+                }</Paper>
             </Grid>
         </Box>
     )

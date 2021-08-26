@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import ProfileForm from './FormExample';
+import ProfileForm from './ProfileForm';
 import EditRoundedIcon from '@material-ui/icons/EditRounded';
 import { Paper, Typography, makeStyles, Divider, Button, Avatar,Dialog, DialogActions, DialogTitle, DialogContent, IconButton } from '@material-ui/core'
 import { useHistory } from 'react-router-dom';
